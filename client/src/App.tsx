@@ -1,11 +1,7 @@
+import AppRoutes from "./routes/AppRoutes";
+
 function App() {
-  return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center">
-      <h1 className="text-4xl font-bold">
-        ABIKYATATTOOS
-      </h1>
-    </main>
-  )
+  return <AppRoutes />;
 }
 
-export default App
+export default App;
