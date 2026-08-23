@@ -9,6 +9,7 @@ import Men from "../pages/Men/Men";
 import Women from "../pages/Women/Women";
 import ProductDetails from "../pages/ProductDetails/ProductDetails";
 import Cart from "../pages/Cart/Cart";
+import Wishlist from "../pages/Wishlist/Wishlist";
 import Checkout from "../pages/Checkout/Checkout";
 import OrderConfirmation from "../pages/OrderConfirmation/OrderConfirmation";
 import About from "../pages/About/About";
@@ -33,6 +34,7 @@ function AppRoutes() {
           <Route path="/women" element={<Women />} />
           <Route path="/product/:slug" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
+            <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="/about" element={<About />} />

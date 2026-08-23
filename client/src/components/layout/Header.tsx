@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import CartDrawer from "../cart/CartDrawer";
 
 import {
   ChevronDown,
@@ -16,6 +17,7 @@ import StudsMegaMenu from "./StudsMegaMenu";
 function Header() {
   const [studsOpen, setStudsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -130,17 +132,17 @@ function Header() {
                 <User size={22} strokeWidth={1.7} />
               </button>
 
-              <button
-                type="button"
-                aria-label="Wishlist"
-                className="hidden transition-opacity duration-200 hover:opacity-50 sm:block"
-              >
-                <Heart size={22} strokeWidth={1.7} />
-              </button>
-
               <Link
-                to="/cart"
-                aria-label="Cart"
+  to="/wishlist"
+  aria-label="Wishlist"
+  className="hidden transition-opacity duration-200 hover:opacity-50 sm:block"
+>
+  <Heart size={22} strokeWidth={1.7} />
+</Link>
+              <button
+  type="button"
+  onClick={() => setCartOpen(true)}
+  aria-label="Open shopping cart"
                 className="relative transition-opacity duration-200 hover:opacity-50"
               >
                 <ShoppingBag size={22} strokeWidth={1.7} />
@@ -148,7 +150,7 @@ function Header() {
                 <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-1 text-[9px] text-white">
                   0
                 </span>
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -165,6 +167,11 @@ function Header() {
           <StudsMegaMenu />
         </div>
       </header>
+
+      <CartDrawer
+  open={cartOpen}
+  onClose={() => setCartOpen(false)}
+/>
 
       {/* MOBILE DRAWER */}
       <MobileMenu
