@@ -13,41 +13,237 @@ enum AdminRole {
 }
 
 model AdminUser {
-  id           String         @id @default(cuid())
-  email        String         @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   passwordHash String
-  role         AdminRole      @default(ADMIN)
-  isActive     Boolean        @default(true)
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean   @default(true)
 
-  lastLoginAt  DateTime?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  sessions     AdminSession[]
+  sessions AdminSession[]
 
   @@index([email])
 }
 
 model AdminSession {
-  id         String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // Never store the raw browser session token.
-  tokenHash  String    @unique
+  tokenHash String @unique
 
-  adminId    String
-  admin      AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId String
+  admin   AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
-  csrfHash   String
+  csrfHash String
 
-  userAgent  String?
-  ipAddress  String?
+  userAgent String?
+  ipAddress String?
 
   expiresAt  DateTime
   lastUsedAt DateTime  @default(now())
   revokedAt  DateTime?
 
-  createdAt  DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([adminId])
   @@index([expiresAt])
+}
+
+enum ProductType {
+  SINGLE
+  COMBO
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum JewelleryType {
+  STUD
+  RING
+  HOOP
+  BARBELL
+  CURVED_BARBELL
+  OTHER
+}
+
+enum ProductImageType {
+  PRODUCT
+  WORN
+}
+
+model Product {
+  id String @id @default(cuid())
+
+  name String
+  slug String @unique
+  sku  String @unique
+
+  shortDescription String
+  description      String
+
+  productType   ProductType   @default(SINGLE)
+  jewelleryType JewelleryType
+
+  colorId String?
+  color   Color?  @relation(fields: [colorId], references: [id])
+
+  materialId String?
+  material   Material? @relation(fields: [materialId], references: [id])
+
+  antiRust Boolean @default(false)
+
+  // Mainly used for ring products.
+  gauge    String?
+  diameter String?
+
+  price     Decimal  @db.Decimal(10, 2)
+  salePrice Decimal? @db.Decimal(10, 2)
+
+  // SINGLE products store physical stock here.
+  // COMBO stock is calculated from its component products.
+  stock Int?
+
+  status ProductStatus @default(DRAFT)
+
+  isFeatured   Boolean @default(false)
+  isBestSeller Boolean @default(false)
+  isNewArrival Boolean @default(false)
+
+  images ProductImage[]
+
+  categories  ProductCategory[]
+  collections ProductCollection[]
+
+  comboItems   ComboItem[] @relation("ComboParent")
+  usedInCombos ComboItem[] @relation("ComboChild")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([productType])
+  @@index([jewelleryType])
+  @@index([colorId])
+  @@index([materialId])
+}
+
+model Color {
+  id String @id @default(cuid())
+
+  name    String @unique
+  hexCode String
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Material {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id String @id @default(cuid())
+
+  name        String  @unique
+  slug        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  products ProductCategory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Collection {
+  id String @id @default(cuid())
+
+  name        String  @unique
+  slug        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  products ProductCollection[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+}
+
+model ProductCollection {
+  productId    String
+  collectionId String
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([productId, collectionId])
+  @@index([collectionId])
+}
+
+model ProductImage {
+  id        String @id @default(cuid())
+  productId String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  type ProductImageType
+
+  storagePath String
+  url         String
+  altText     String?
+
+  width     Int?
+  height    Int?
+  sizeBytes Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, type])
+  @@index([productId])
+}
+
+model ComboItem {
+  comboProductId String
+  itemProductId  String
+
+  quantity Int @default(1)
+
+  comboProduct Product @relation("ComboParent", fields: [comboProductId], references: [id], onDelete: Cascade)
+  itemProduct  Product @relation("ComboChild", fields: [itemProductId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@id([comboProductId, itemProductId])
+  @@index([itemProductId])
 }

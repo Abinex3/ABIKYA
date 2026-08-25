@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+import adminProductRoutes from "./routes/adminProductRoutes.js";
 
 const app = express();
 
@@ -25,5 +26,9 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/admin/auth", adminAuthRoutes);
+app.use(
+  "/api/admin/products",
+  adminProductRoutes
+);
 
 export default app;
