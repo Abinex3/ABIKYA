@@ -13,7 +13,6 @@ import {
 
 import {
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
@@ -44,6 +43,18 @@ const inputFontStyle: CSSProperties = {
 ========================= */
 
 type ProductCategory = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+type Collection = {
   id: string;
   name: string;
   slug: string;
@@ -277,6 +288,9 @@ const Products = () => {
       hasPreviousPage: false,
     });
 
+    const [refreshKey, setRefreshKey] =
+  useState(0);
+
   const [stats, setStats] =
     useState<ProductStats>({
       totalProducts: 0,
@@ -294,6 +308,49 @@ const Products = () => {
   const [search, setSearch] =
     useState("");
 
+    const [openActionId, setOpenActionId] =
+  useState<string | null>(null);
+
+    const [debouncedSearch, setDebouncedSearch] =
+  useState("");
+
+  const [status, setStatus] = useState("");
+
+  const [categories, setCategories] =
+  useState<Category[]>([]);
+
+const [categoryId, setCategoryId] =
+  useState("");
+
+  const [collections, setCollections] =
+  useState<Collection[]>([]);
+
+const [collectionId, setCollectionId] =
+  useState("");
+
+const [productType, setProductType] =
+  useState("");
+
+const [jewelleryType, setJewelleryType] =
+  useState("");
+
+const [moreFiltersOpen, setMoreFiltersOpen] =
+  useState(false);
+
+  /* =========================
+   DEBOUNCED SEARCH
+========================= */
+
+useEffect(() => {
+  const timeoutId = window.setTimeout(() => {
+    setDebouncedSearch(search.trim());
+  }, 350);
+
+  return () => {
+    window.clearTimeout(timeoutId);
+  };
+}, [search]);
+
   /* =========================
      FETCH PRODUCTS
   ========================= */
@@ -304,42 +361,93 @@ const Products = () => {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `http://localhost:5000/api/admin/products?page=${pagination.page}&limit=${pagination.limit}`,
+        const params = new URLSearchParams({
+  page: String(pagination.page),
+  limit: String(pagination.limit),
+});
+
+if (debouncedSearch) {
+  params.set(
+    "search",
+    debouncedSearch
+  );
+}
+
+if (categoryId) {
+  params.set(
+    "categoryId",
+    categoryId
+  );
+}
+
+if (status) {
+  params.set(
+    "status",
+    status
+  );
+}
+
+if (collectionId) {
+  params.set(
+    "collectionId",
+    collectionId
+  );
+}
+
+if (productType) {
+  params.set(
+    "productType",
+    productType
+  );
+}
+
+if (jewelleryType) {
+  params.set(
+    "jewelleryType",
+    jewelleryType
+  );
+}
+
+const response = await fetch(
+  `http://localhost:5000/api/admin/products?${params.toString()}`,
           {
             method: "GET",
             credentials: "include",
           }
         );
 
-        const data =
-          (await response.json()) as
-            | ProductsResponse
-            | {
-                message?: string;
-              };
+        const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(
-            "message" in data &&
-              data.message
-              ? data.message
-              : "Unable to load products."
-          );
-        }
+if (!response.ok) {
+  throw new Error(
+    data.message ||
+      "Unable to load products."
+  );
+}
 
-        const result =
-          data as ProductsResponse;
+if (
+  pagination.page >
+  data.pagination.totalPages
+) {
+  setPagination((current) => ({
+    ...current,
+    page: data.pagination.totalPages,
+  }));
 
-        setProducts(
-          result.products ?? []
-        );
+  return;
+}
 
-        setPagination(
-          result.pagination
-        );
+setProducts(
+  data.products ?? []
+);
 
-        setStats(result.stats);
+setPagination(
+  data.pagination
+);
+
+setStats(
+  data.stats
+);
       } catch (error) {
         setError(
           error instanceof Error
@@ -352,37 +460,55 @@ const Products = () => {
     };
 
     void loadProducts();
-  }, [
-    pagination.page,
-    pagination.limit,
-  ]);
+}, [
+  pagination.page,
+  pagination.limit,
+  debouncedSearch,
+  categoryId,
+  status,
+  collectionId,
+  productType,
+  jewelleryType,
+  refreshKey,
+]);
 
-  /* =========================
-     TEMP CLIENT SEARCH
+useEffect(() => {
+  const loadLookups = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/admin/products/lookups",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
-     Backend search comes next.
-  ========================= */
+      const data = await response.json();
 
-  const visibleProducts =
-    useMemo(() => {
-      const value = search
-        .trim()
-        .toLowerCase();
-
-      if (!value) {
-        return products;
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to load categories."
+        );
       }
 
-      return products.filter(
-        (product) =>
-          product.name
-            .toLowerCase()
-            .includes(value) ||
-          product.sku
-            .toLowerCase()
-            .includes(value)
+      setCategories(
+  data.categories ?? []
+);
+
+setCollections(
+  data.collections ?? []
+);
+    } catch (error) {
+      console.error(
+        "Failed to load product lookups:",
+        error
       );
-    }, [products, search]);
+    }
+  };
+
+  void loadLookups();
+}, []);
 
   /* =========================
      PAGINATION
@@ -422,6 +548,155 @@ const Products = () => {
       pagination.limit,
     pagination.total
   );
+
+  
+
+  const resetFilterPage = () => {
+  setPagination((current) => ({
+    ...current,
+    page: 1,
+  }));
+};
+
+const hasMoreFilters =
+  Boolean(collectionId) ||
+  Boolean(productType) ||
+  Boolean(jewelleryType);
+
+  const archiveProduct = async (
+  productId: string
+) => {
+  const csrfToken =
+    sessionStorage.getItem(
+      "admin_csrf_token"
+    );
+
+  if (!csrfToken) {
+    setError(
+      "Your admin session is missing the security token. Please sign in again."
+    );
+    return;
+  }
+
+  try {
+    setError("");
+
+    const response = await fetch(
+      `http://localhost:5000/api/admin/products/${productId}/status`,
+      {
+        method: "PATCH",
+        credentials: "include",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          "x-csrf-token":
+            csrfToken,
+        },
+
+        body: JSON.stringify({
+          status: "ARCHIVED",
+        }),
+      }
+    );
+
+    const data =
+      await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+          "Unable to archive product."
+      );
+    }
+
+    setOpenActionId(null);
+
+    /*
+     * Refresh current list by removing
+     * the archived row immediately.
+     *
+     * If your current Status filter is
+     * ARCHIVED, don't remove it.
+     */
+    if (status !== "ARCHIVED") {
+      setOpenActionId(null);
+
+setRefreshKey(
+  (current) => current + 1
+);
+    }
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Unable to archive product."
+    );
+  }
+};
+
+const restoreProduct = async (
+  productId: string
+) => {
+  const csrfToken =
+    sessionStorage.getItem(
+      "admin_csrf_token"
+    );
+
+  if (!csrfToken) {
+    setError(
+      "Your admin session is missing the security token. Please sign in again."
+    );
+    return;
+  }
+
+  try {
+    setError("");
+
+    const response = await fetch(
+      `http://localhost:5000/api/admin/products/${productId}/status`,
+      {
+        method: "PATCH",
+        credentials: "include",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          "x-csrf-token":
+            csrfToken,
+        },
+
+        body: JSON.stringify({
+          status: "DRAFT",
+        }),
+      }
+    );
+
+    const data =
+      await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+          "Unable to restore product."
+      );
+    }
+
+    setOpenActionId(null);
+
+    setRefreshKey(
+      (current) => current + 1
+    );
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Unable to restore product."
+    );
+  }
+};
 
   return (
     <div
@@ -547,11 +822,14 @@ const Products = () => {
             <input
               type="text"
               value={search}
-              onChange={(event) =>
-                setSearch(
-                  event.target.value
-                )
-              }
+              onChange={(event) => {
+  setSearch(event.target.value);
+
+  setPagination((current) => ({
+    ...current,
+    page: 1,
+  }));
+}}
               placeholder="Search product or SKU..."
               className={`
                 ${inputFont}
@@ -584,33 +862,326 @@ const Products = () => {
               xl:pb-0
             "
           >
-            <FilterButton label="Category" />
+            <div className="relative">
+  <select
+    value={categoryId}
+    onChange={(event) => {
+      setCategoryId(
+        event.target.value
+      );
 
-            <FilterButton label="Status" />
+      setPagination((current) => ({
+        ...current,
+        page: 1,
+      }));
+    }}
+    className="
+      h-10 appearance-none
+      rounded-xl
+      border border-[#e5deed]
+      bg-white
+      pl-3 pr-9
+      text-[12px]
+      font-medium
+      text-[#6f6677]
+      outline-none
+      transition
+      hover:border-[#d6c8ee]
+      focus:border-[#b8a2ef]
+    "
+  >
+    <option value="">
+      Category
+    </option>
 
-            <button
-              type="button"
-              className="
-                inline-flex h-11
-                shrink-0 items-center
-                gap-2 rounded-xl
-                border border-[#e8e3ee]
-                bg-white px-4
-                text-sm font-medium
-                text-[#655e6f]
-                transition
-                hover:border-[#d8d0e5]
-                hover:bg-[#faf8ff]
-                hover:text-[#6e59ff]
-              "
-            >
-              <SlidersHorizontal
-                size={16}
-              />
+    {categories.map((category) => (
+      <option
+        key={category.id}
+        value={category.id}
+      >
+        {category.name}
+      </option>
+    ))}
+  </select>
 
-              More Filters
-            </button>
-          </div>
+  <ChevronDown
+    size={14}
+    className="
+      pointer-events-none
+      absolute right-3 top-1/2
+      -translate-y-1/2
+      text-[#9c91a5]
+    "
+  />
+</div>
+
+            <div className="relative">
+  <select
+    value={status}
+    onChange={(event) => {
+      setStatus(
+        event.target.value
+      );
+
+      setPagination((current) => ({
+        ...current,
+        page: 1,
+      }));
+    }}
+    className="
+      h-11 appearance-none
+      rounded-xl
+      border border-[#e8e3ee]
+      bg-white
+      pl-4 pr-9
+      text-sm font-medium
+      text-[#655e6f]
+      outline-none
+      transition
+      hover:border-[#d8d0e5]
+      hover:bg-[#faf8ff]
+    "
+  >
+    <option value="">
+      Status
+    </option>
+
+    <option value="ACTIVE">
+      Active
+    </option>
+
+    <option value="DRAFT">
+      Draft
+    </option>
+
+    <option value="ARCHIVED">
+      Archived
+    </option>
+  </select>
+
+  <ChevronDown
+    size={15}
+    className="
+      pointer-events-none
+      absolute right-3 top-1/2
+      -translate-y-1/2
+      text-[#aaa3b2]
+    "
+  />
+</div>
+
+           <div className="relative">
+  <button
+    type="button"
+    onClick={() =>
+      setMoreFiltersOpen(
+        (current) => !current
+      )
+    }
+    className={`
+      inline-flex h-11
+      shrink-0 items-center
+      gap-2 rounded-xl
+      border bg-white px-4
+      text-sm font-medium
+      transition
+      ${
+        hasMoreFilters
+          ? "border-[#b8a2ef] text-[#6e59ff] bg-[#faf8ff]"
+          : "border-[#e8e3ee] text-[#655e6f] hover:border-[#d8d0e5] hover:bg-[#faf8ff] hover:text-[#6e59ff]"
+      }
+    `}
+  >
+    <SlidersHorizontal size={16} />
+
+    More Filters
+
+    {hasMoreFilters && (
+      <span className="h-1.5 w-1.5 rounded-full bg-[#6e59ff]" />
+    )}
+  </button>
+
+  {moreFiltersOpen && (
+    <div
+      className="
+        absolute right-0 top-[calc(100%+8px)]
+        z-30 w-[280px]
+        rounded-2xl
+        border border-[#e8e3ee]
+        bg-white p-4
+        shadow-[0_18px_45px_rgba(53,42,78,0.14)]
+      "
+    >
+      <div className="space-y-4">
+
+        {/* Collection */}
+
+        <div>
+          <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
+            Collection
+          </label>
+
+          <select
+            value={collectionId}
+            onChange={(event) => {
+              setCollectionId(
+                event.target.value
+              );
+              resetFilterPage();
+            }}
+            className="
+              h-10 w-full
+              rounded-xl
+              border border-[#e8e3ee]
+              bg-white px-3
+              text-[12px]
+              text-[#655e6f]
+              outline-none
+              focus:border-[#b8a2ef]
+            "
+          >
+            <option value="">
+              All Collections
+            </option>
+
+            {collections.map(
+              (collection) => (
+                <option
+                  key={collection.id}
+                  value={collection.id}
+                >
+                  {collection.name}
+                </option>
+              )
+            )}
+          </select>
+        </div>
+
+        {/* Product Type */}
+
+        <div>
+          <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
+            Product Type
+          </label>
+
+          <select
+            value={productType}
+            onChange={(event) => {
+              setProductType(
+                event.target.value
+              );
+              resetFilterPage();
+            }}
+            className="
+              h-10 w-full
+              rounded-xl
+              border border-[#e8e3ee]
+              bg-white px-3
+              text-[12px]
+              text-[#655e6f]
+              outline-none
+              focus:border-[#b8a2ef]
+            "
+          >
+            <option value="">
+              All Product Types
+            </option>
+
+            <option value="SINGLE">
+              Single
+            </option>
+
+            <option value="COMBO">
+              Combo
+            </option>
+          </select>
+        </div>
+
+        {/* Jewellery Type */}
+
+        <div>
+          <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
+            Jewellery Type
+          </label>
+
+          <select
+            value={jewelleryType}
+            onChange={(event) => {
+              setJewelleryType(
+                event.target.value
+              );
+              resetFilterPage();
+            }}
+            className="
+              h-10 w-full
+              rounded-xl
+              border border-[#e8e3ee]
+              bg-white px-3
+              text-[12px]
+              text-[#655e6f]
+              outline-none
+              focus:border-[#b8a2ef]
+            "
+          >
+            <option value="">
+              All Jewellery Types
+            </option>
+
+            <option value="STUD">
+              Stud
+            </option>
+
+            <option value="RING">
+              Ring
+            </option>
+
+            <option value="HOOP">
+              Hoop
+            </option>
+
+            <option value="BARBELL">
+              Barbell
+            </option>
+
+            <option value="CURVED_BARBELL">
+              Curved Barbell
+            </option>
+
+            <option value="OTHER">
+              Other
+            </option>
+          </select>
+        </div>
+
+        {/* Clear */}
+
+        {hasMoreFilters && (
+          <button
+            type="button"
+            onClick={() => {
+              setCollectionId("");
+              setProductType("");
+              setJewelleryType("");
+              resetFilterPage();
+            }}
+            className="
+              h-9 w-full
+              rounded-xl
+              bg-[#f3efff]
+              text-[12px]
+              font-semibold
+              text-[#6e59ff]
+              transition
+              hover:bg-[#ece6ff]
+            "
+          >
+            Clear More Filters
+          </button>
+        )}
+      </div>
+    </div>
+  )}
+</div>          </div>
         </div>
 
         {/* =========================
@@ -683,8 +1254,7 @@ const Products = () => {
         ========================== */}
 
         {!loading &&
-          visibleProducts.length ===
-            0 && (
+          products.length === 0 && (
             <div className="flex min-h-[320px] flex-col items-center justify-center px-5 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eee9ff] text-[#725aff]">
                 <Package size={24} />
@@ -726,8 +1296,7 @@ const Products = () => {
         ========================== */}
 
         {!loading &&
-          visibleProducts.length >
-            0 && (
+          products.length > 0 && (
             <div className="hidden overflow-x-auto lg:block">
               <table className="w-full min-w-[1050px] border-collapse">
                 <thead>
@@ -765,7 +1334,7 @@ const Products = () => {
                 </thead>
 
                 <tbody className="divide-y divide-[#f0edf3]">
-                  {visibleProducts.map(
+                  {products.map(
                     (product) => {
                       const status =
                         formatStatus(
@@ -956,26 +1525,155 @@ const Products = () => {
                           {/* Action */}
 
                           <td className="px-4 py-4">
-                            <button
-                              type="button"
-                              aria-label={`Actions for ${product.name}`}
-                              className="
-                                flex h-9 w-9
-                                items-center
-                                justify-center
-                                rounded-lg
-                                text-[#9a93a3]
-                                transition
-                                hover:bg-[#f2eeff]
-                                hover:text-[#6e59ff]
-                              "
-                            >
-                              <MoreHorizontal
-                                size={
-                                  19
-                                }
-                              />
-                            </button>
+                            <div className="relative">
+  <button
+    type="button"
+    aria-label={`Actions for ${product.name}`}
+    onClick={() =>
+      setOpenActionId((current) =>
+        current === product.id
+          ? null
+          : product.id
+      )
+    }
+    className="
+      flex h-9 w-9
+      items-center
+      justify-center
+      rounded-lg
+      text-[#9a93a3]
+      transition
+      hover:bg-[#f2eeff]
+      hover:text-[#6e59ff]
+    "
+  >
+    <MoreHorizontal size={19} />
+  </button>
+
+  {openActionId === product.id && (
+    <div
+      className="
+        absolute right-0 top-[calc(100%+6px)]
+        z-40 w-[140px]
+        overflow-hidden
+        rounded-xl
+        border border-[#e8e3ee]
+        bg-white
+        py-1.5
+        shadow-[0_14px_35px_rgba(53,42,78,0.14)]
+      "
+    >
+      <button
+        type="button"
+        onClick={() => {
+          setOpenActionId(null);
+
+          navigate(
+            `/admin/products/${product.id}/edit`
+          );
+        }}
+        className="
+          flex w-full items-center
+          px-3 py-2
+          text-left
+          text-[12px]
+          font-medium
+          text-[#5f5867]
+          transition
+          hover:bg-[#f7f4ff]
+          hover:text-[#6e59ff]
+        "
+      >
+        Edit
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+  setOpenActionId(null);
+
+  navigate(
+    `/admin/products/${product.id}/view`
+  );
+}}
+        className="
+          flex w-full items-center
+          px-3 py-2
+          text-left
+          text-[12px]
+          font-medium
+          text-[#5f5867]
+          transition
+          hover:bg-[#f7f4ff]
+        "
+      >
+        View
+      </button>
+
+      {product.status === "ARCHIVED" ? (
+  <button
+    type="button"
+    onClick={() => {
+      const confirmed =
+        window.confirm(
+          `Restore "${product.name}" to Draft?`
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      void restoreProduct(
+        product.id
+      );
+    }}
+    className="
+      flex w-full items-center
+      px-3 py-2
+      text-left
+      text-[12px]
+      font-medium
+      text-[#4f8d67]
+      transition
+      hover:bg-[#f2fbf5]
+    "
+  >
+    Restore
+  </button>
+) : (
+  <button
+    type="button"
+    onClick={() => {
+      const confirmed =
+        window.confirm(
+          `Archive "${product.name}"?`
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      void archiveProduct(
+        product.id
+      );
+    }}
+    className="
+      flex w-full items-center
+      px-3 py-2
+      text-left
+      text-[12px]
+      font-medium
+      text-[#d95c70]
+      transition
+      hover:bg-[#fff4f5]
+    "
+  >
+    Archive
+  </button>
+)}
+    </div>
+  )}
+</div>
                           </td>
                         </tr>
                       );
@@ -991,10 +1689,9 @@ const Products = () => {
         ========================== */}
 
         {!loading &&
-          visibleProducts.length >
-            0 && (
+          products.length > 0 && (
             <div className="divide-y divide-[#eeeaf3] lg:hidden">
-              {visibleProducts.map(
+              {products.map(
                 (product) => {
                   const status =
                     formatStatus(
@@ -1047,26 +1744,108 @@ const Products = () => {
                               </p>
                             </div>
 
-                            <button
-                              type="button"
-                              aria-label={`Actions for ${product.name}`}
-                              className="
-                                flex h-8 w-8
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-lg
-                                text-[#9991a2]
-                                hover:bg-[#f2eeff]
-                                hover:text-[#6e59ff]
-                              "
-                            >
-                              <MoreHorizontal
-                                size={
-                                  18
-                                }
-                              />
-                            </button>
+                            <div className="relative">
+  <button
+    type="button"
+    aria-label={`Actions for ${product.name}`}
+    onClick={() =>
+      setOpenActionId((current) =>
+        current === product.id
+          ? null
+          : product.id
+      )
+    }
+    className="
+      flex h-9 w-9
+      items-center
+      justify-center
+      rounded-lg
+      text-[#9a93a3]
+      transition
+      hover:bg-[#f2eeff]
+      hover:text-[#6e59ff]
+    "
+  >
+    <MoreHorizontal size={19} />
+  </button>
+
+  {openActionId === product.id && (
+    <div
+      className="
+        absolute right-0 top-[calc(100%+6px)]
+        z-40 w-[140px]
+        overflow-hidden
+        rounded-xl
+        border border-[#e8e3ee]
+        bg-white
+        py-1.5
+        shadow-[0_14px_35px_rgba(53,42,78,0.14)]
+      "
+    >
+      <button
+        type="button"
+        onClick={() => {
+          setOpenActionId(null);
+
+          navigate(
+            `/admin/products/${product.id}/edit`
+          );
+        }}
+        className="
+          flex w-full items-center
+          px-3 py-2
+          text-left
+          text-[12px]
+          font-medium
+          text-[#5f5867]
+          transition
+          hover:bg-[#f7f4ff]
+          hover:text-[#6e59ff]
+        "
+      >
+        Edit
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setOpenActionId(null);
+        }}
+        className="
+          flex w-full items-center
+          px-3 py-2
+          text-left
+          text-[12px]
+          font-medium
+          text-[#5f5867]
+          transition
+          hover:bg-[#f7f4ff]
+        "
+      >
+        View
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setOpenActionId(null);
+        }}
+        className="
+          flex w-full items-center
+          px-3 py-2
+          text-left
+          text-[12px]
+          font-medium
+          text-[#d95c70]
+          transition
+          hover:bg-[#fff4f5]
+        "
+      >
+        Archive
+      </button>
+    </div>
+  )}
+</div>
                           </div>
 
                           <div className="mt-3 flex flex-wrap items-center gap-2">

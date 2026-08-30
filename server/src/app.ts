@@ -4,6 +4,9 @@ import cookieParser from "cookie-parser";
 
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import adminProductRoutes from "./routes/adminProductRoutes.js";
+import adminPromotionRoutes from "./routes/adminPromotionRoutes.js";
+
+
 
 const app = express();
 
@@ -26,9 +29,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/admin/auth", adminAuthRoutes);
-app.use(
-  "/api/admin/products",
-  adminProductRoutes
-);
+app.use("/api/admin/products",adminProductRoutes);
+app.use("/api/admin/promotions",adminPromotionRoutes);
 
 export default app;

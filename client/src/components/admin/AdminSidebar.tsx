@@ -59,6 +59,18 @@ const menuItems = [
     icon: Layers3,
     path: "/admin/collections",
   },
+
+  {
+    label: "Promotions",
+    icon: Layers3,
+    path: "/admin/promotions",
+  },
+
+  {
+    label: "Gifts",
+    icon: Layers3,
+    path: "/admin/gifts",
+  },
   {
     label: "Customers",
     icon: Users,

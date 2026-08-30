@@ -8,6 +8,9 @@ import {
   createProduct,
   uploadProductImage,
   updateProductStatus,
+  getProductById,
+  updateProduct,
+  deleteProductImage
 } from "../controllers/adminProductController.js";
 
 
@@ -53,6 +56,24 @@ router.post(
   createProduct
 );
 
+router.delete(
+  "/:id/images/:type",
+  requireAdmin,
+  deleteProductImage
+);
+
+router.patch(
+  "/:id",
+  requireAdmin,
+  updateProduct
+);
+
+
+router.get(
+  "/:id",
+  requireAdmin,
+  getProductById
+);
 
 
 router.patch(

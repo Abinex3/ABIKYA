@@ -11,7 +11,10 @@ import {
 } from "../services/productImageProcessor.js";
 
 
-import { PrismaClient } from "../generated/prisma/client.js";
+import {
+  PrismaClient,
+  Prisma,
+} from "../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 import { createAdminProductSchema } from "../validators/adminProduct.js";
@@ -778,6 +781,7 @@ export async function uploadProductImage(
         processedImage.buffer,
         {
           contentType: "image/webp",
+          cacheControl: "3600",
           upsert: true,
         }
       );
@@ -795,6 +799,7 @@ export async function uploadProductImage(
         processedThumbnail.buffer,
         {
           contentType: "image/webp",
+          cacheControl: "3600",
           upsert: true,
         }
       );
@@ -809,6 +814,20 @@ export async function uploadProductImage(
       .from("products")
       .getPublicUrl(imagePath);
 
+    /*
+     * Cache-busting version.
+     *
+     * The Supabase object path remains
+     * the same when replacing an image,
+     * so the browser/CDN may otherwise
+     * continue showing the old image.
+     */
+    const version =
+      Date.now();
+
+    const versionedImageUrl =
+      `${publicImageData.publicUrl}?v=${version}`;
+
     const image =
       await prisma.productImage.upsert({
         where: {
@@ -819,9 +838,11 @@ export async function uploadProductImage(
         },
 
         update: {
-          storagePath: imagePath,
+          storagePath:
+            imagePath,
+
           url:
-            publicImageData.publicUrl,
+            versionedImageUrl,
 
           width:
             processedImage.width,
@@ -841,13 +862,16 @@ export async function uploadProductImage(
         },
 
         create: {
-          productId: id,
+          productId:
+            id,
+
           type,
 
-          storagePath: imagePath,
+          storagePath:
+            imagePath,
 
           url:
-            publicImageData.publicUrl,
+            versionedImageUrl,
 
           width:
             processedImage.width,
@@ -1008,6 +1032,620 @@ export async function updateProductStatus(
   }
 }
 
+export async function updateProduct(
+  req: Request<{ id: string }>,
+  res: Response
+) {
+  const { id } = req.params;
+
+  const parsed =
+    createAdminProductSchema.safeParse(
+      req.body
+    );
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      message:
+        "Invalid product data.",
+      errors:
+        parsed.error.flatten(),
+    });
+  }
+
+  const data = parsed.data;
+
+  try {
+    const existingProduct =
+      await prisma.product.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          sku: true,
+        },
+      });
+
+      if (data.status === "ACTIVE") {
+  const images =
+    await prisma.productImage.findMany({
+      where: {
+        productId: id,
+      },
+      select: {
+        type: true,
+      },
+    });
+
+  const hasProductImage =
+    images.some(
+      (image) =>
+        image.type === "PRODUCT"
+    );
+
+  const hasWornImage =
+    images.some(
+      (image) =>
+        image.type === "WORN"
+    );
+
+  if (
+    !hasProductImage ||
+    !hasWornImage
+  ) {
+    return res.status(400).json({
+      message:
+        "Product and worn images are required before publishing.",
+    });
+  }
+}
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        message: "Product not found.",
+      });
+    }
+
+    const product =
+      await prisma.$transaction(
+        async (tx) => {
+          let materialId =
+            data.materialId ?? null;
+
+          let colorId =
+            data.colorId ?? null;
+
+          /*
+           * Custom material
+           */
+          if (data.customMaterialName) {
+            const material =
+              await tx.material.upsert({
+                where: {
+                  name:
+                    data.customMaterialName,
+                },
+                update: {},
+                create: {
+                  name:
+                    data.customMaterialName,
+                },
+              });
+
+            materialId = material.id;
+          }
+
+          /*
+           * Custom colour
+           */
+          if (
+            data.customColorName &&
+            data.customColorHex
+          ) {
+            const color =
+              await tx.color.upsert({
+                where: {
+                  name:
+                    data.customColorName,
+                },
+
+                update: {
+                  hexCode:
+                    data.customColorHex,
+                },
+
+                create: {
+                  name:
+                    data.customColorName,
+                  hexCode:
+                    data.customColorHex,
+                },
+              });
+
+            colorId = color.id;
+          }
+
+          if (!materialId) {
+            throw new ProductValidationError(
+              "Material is required."
+            );
+          }
+
+          if (!colorId) {
+            throw new ProductValidationError(
+              "Colour is required."
+            );
+          }
+
+          /*
+           * Validate foreign keys.
+           */
+          const [
+            material,
+            color,
+            validCategories,
+            validCollections,
+          ] = await Promise.all([
+            tx.material.findUnique({
+              where: {
+                id: materialId,
+              },
+              select: {
+                id: true,
+              },
+            }),
+
+            tx.color.findUnique({
+              where: {
+                id: colorId,
+              },
+              select: {
+                id: true,
+              },
+            }),
+
+            data.categoryIds.length > 0
+              ? tx.category.findMany({
+                  where: {
+                    id: {
+                      in: data.categoryIds,
+                    },
+                    isActive: true,
+                  },
+                  select: {
+                    id: true,
+                  },
+                })
+              : Promise.resolve([]),
+
+            data.collectionIds.length > 0
+  ? tx.collection.findMany({
+      where: {
+        id: {
+          in:
+            data.collectionIds,
+        },
+        isActive: true,
+      },
+      select: {
+        id: true,
+      },
+    })
+  : Promise.resolve([]),
+          ]);
+
+          if (!material) {
+            throw new ProductValidationError(
+              "Selected material does not exist."
+            );
+          }
+
+          if (!color) {
+            throw new ProductValidationError(
+              "Selected colour does not exist."
+            );
+          }
+
+          const uniqueCategoryIds = [
+            ...new Set(
+              data.categoryIds
+            ),
+          ];
+
+          if (
+            validCategories.length !==
+            uniqueCategoryIds.length
+          ) {
+            throw new ProductValidationError(
+              "One or more selected categories are invalid."
+            );
+          }
+
+          const uniqueCollectionIds = [
+            ...new Set(
+              data.collectionIds
+            ),
+          ];
+
+          if (
+            validCollections.length !==
+            uniqueCollectionIds.length
+          ) {
+            throw new ProductValidationError(
+              "One or more selected collections are invalid."
+            );
+          }
+
+          /*
+           * Validate combo products.
+           */
+          if (
+            data.productType === "COMBO"
+          ) {
+            const comboProductIds = [
+              ...new Set(
+                data.comboItems.map(
+                  (item) =>
+                    item.productId
+                )
+              ),
+            ];
+
+            if (
+              comboProductIds.length !==
+              data.comboItems.length
+            ) {
+              throw new ProductValidationError(
+                "The same product cannot be added to a combo more than once."
+              );
+            }
+
+            /*
+             * Prevent a combo from
+             * containing itself.
+             */
+            if (
+              comboProductIds.includes(id)
+            ) {
+              throw new ProductValidationError(
+                "A combo cannot contain itself."
+              );
+            }
+
+            const comboProducts =
+              await tx.product.findMany({
+                where: {
+                  id: {
+                    in: comboProductIds,
+                  },
+
+                  productType:
+                    "SINGLE",
+
+                  status: {
+                    not: "ARCHIVED",
+                  },
+                },
+
+                select: {
+                  id: true,
+                },
+              });
+
+            if (
+              comboProducts.length !==
+              comboProductIds.length
+            ) {
+              throw new ProductValidationError(
+                "One or more combo products are invalid."
+              );
+            }
+          }
+
+          /*
+           * Replace category,
+           * collection and combo
+           * relationships.
+           */
+          await Promise.all([
+            tx.productCategory.deleteMany({
+              where: {
+                productId: id,
+              },
+            }),
+
+            tx.productCollection.deleteMany({
+              where: {
+                productId: id,
+              },
+            }),
+
+            tx.comboItem.deleteMany({
+              where: {
+                comboProductId: id,
+              },
+            }),
+          ]);
+
+          /*
+           * Update product.
+           *
+           * IMPORTANT:
+           * sku is deliberately NOT
+           * included here.
+           */
+          return tx.product.update({
+            where: {
+              id,
+            },
+
+            data: {
+              name: data.name,
+
+              shortDescription:
+                data.shortDescription,
+
+              description:
+                data.description,
+
+              productType:
+                data.productType,
+
+              jewelleryType:
+                data.jewelleryType,
+
+              materialId,
+              colorId,
+
+              antiRust:
+                data.antiRust,
+
+              gauge:
+                data.gauge || null,
+
+              diameter:
+                data.diameter || null,
+
+              price:
+                data.price,
+
+              salePrice:
+                data.salePrice ?? null,
+
+              stock:
+                data.productType ===
+                "SINGLE"
+                  ? data.stock ?? 0
+                  : null,
+
+              status:
+                data.status,
+
+              isFeatured:
+                data.isFeatured,
+
+              isBestSeller:
+                data.isBestSeller,
+
+              isNewArrival:
+                data.isNewArrival,
+
+              categories: {
+                create:
+                  data.categoryIds.map(
+                    (categoryId) => ({
+                      categoryId,
+                    })
+                  ),
+              },
+
+              collections: {
+                create:
+                  data.collectionIds.map(
+                    (collectionId) => ({
+                      collectionId,
+                    })
+                  ),
+              },
+
+              comboItems:
+                data.productType ===
+                "COMBO"
+                  ? {
+                      create:
+                        data.comboItems.map(
+                          (item) => ({
+                            itemProductId:
+                              item.productId,
+                            quantity:
+                              item.quantity,
+                          })
+                        ),
+                    }
+                  : undefined,
+            },
+
+            include: {
+              color: true,
+              material: true,
+
+              categories: {
+                include: {
+                  category: true,
+                },
+              },
+
+              collections: {
+                include: {
+                  collection: true,
+                },
+              },
+
+              images: true,
+
+              comboItems: {
+                include: {
+                  itemProduct: {
+                    select: {
+                      id: true,
+                      name: true,
+                      sku: true,
+                      stock: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+        },
+         {
+      timeout: 15000,
+    }
+      );
+
+    return res.status(200).json({
+      message:
+        "Product updated successfully.",
+      product,
+    });
+  } catch (error) {
+    if (
+      error instanceof
+      ProductValidationError
+    ) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    console.error(
+      "Failed to update product:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Unable to update product.",
+    });
+  }
+}
+
+export const deleteProductImage = async (
+  req: Request<{
+    id: string;
+    type: string;
+  }>,
+  res: Response
+) => {
+  try {
+    const { id, type } = req.params;
+
+    const normalizedType =
+      type.toUpperCase();
+
+    if (
+      normalizedType !== "PRODUCT" &&
+      normalizedType !== "WORN"
+    ) {
+      return res.status(400).json({
+        message: "Invalid image type.",
+      });
+    }
+
+    const product =
+  await prisma.product.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+    if (!product) {
+  return res.status(404).json({
+    message: "Product not found.",
+  });
+}
+
+if (product.status === "ACTIVE") {
+  return res.status(400).json({
+    message:
+      "Active products must keep both required images. Change the product to Draft before deleting an image.",
+  });
+}
+
+    const image =
+      await prisma.productImage.findFirst({
+        where: {
+          productId: id,
+          type: normalizedType,
+        },
+      });
+
+    if (!image) {
+      return res.status(404).json({
+        message:
+          "Product image not found.",
+      });
+    }
+
+    const typeName =
+      normalizedType.toLowerCase();
+
+    const imagePath =
+      `${id}/${typeName}.webp`;
+
+    const thumbnailPath =
+      `${id}/${typeName}-thumb.webp`;
+
+    const pathsToDelete = [
+      imagePath,
+      thumbnailPath,
+    ];
+
+    const {
+      error: storageError,
+    } = await supabaseAdmin.storage
+      .from("products")
+      .remove(pathsToDelete);
+
+    if (storageError) {
+      console.error(
+        "Failed to delete product image from storage:",
+        storageError
+      );
+
+      return res.status(500).json({
+        message:
+          "Unable to delete product image.",
+      });
+    }
+
+    await prisma.productImage.delete({
+      where: {
+        id: image.id,
+      },
+    });
+
+    return res.status(200).json({
+      message:
+        "Product image deleted successfully.",
+    });
+  } catch (error) {
+    console.error(
+      "Failed to delete product image:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Unable to delete product image.",
+    });
+  }
+};
+
 export async function getProducts(
   req: Request,
   res: Response
@@ -1038,16 +1676,168 @@ export async function getProducts(
     const skip =
       (page - 1) * limit;
 
+      const search =
+  typeof req.query.search === "string"
+    ? req.query.search.trim()
+    : "";
+
+const status =
+  typeof req.query.status === "string"
+    ? req.query.status.trim()
+    : "";
+
+const categoryId =
+  typeof req.query.categoryId === "string"
+    ? req.query.categoryId.trim()
+    : "";
+
+const collectionId =
+  typeof req.query.collectionId === "string"
+    ? req.query.collectionId.trim()
+    : "";
+
+const productType =
+  typeof req.query.productType === "string"
+    ? req.query.productType.trim()
+    : "";
+
+const jewelleryType =
+  typeof req.query.jewelleryType === "string"
+    ? req.query.jewelleryType.trim()
+    : "";
+
+const validStatuses = new Set([
+  "DRAFT",
+  "ACTIVE",
+  "ARCHIVED",
+]);
+
+const validProductTypes = new Set([
+  "SINGLE",
+  "COMBO",
+]);
+
+const validJewelleryTypes = new Set([
+  "STUD",
+  "RING",
+  "HOOP",
+  "BARBELL",
+  "CURVED_BARBELL",
+  "OTHER",
+]);
+
+if (
+  status &&
+  !validStatuses.has(status)
+) {
+  return res.status(400).json({
+    message: "Invalid product status.",
+  });
+}
+
+if (
+  productType &&
+  !validProductTypes.has(productType)
+) {
+  return res.status(400).json({
+    message: "Invalid product type.",
+  });
+}
+
+if (
+  jewelleryType &&
+  !validJewelleryTypes.has(jewelleryType)
+) {
+  return res.status(400).json({
+    message: "Invalid jewellery type.",
+  });
+}
+
+const where: Prisma.ProductWhereInput = {
+  ...(search
+    ? {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            sku: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      }
+    : {}),
+
+  ...(status
+    ? {
+        status:
+          status as
+            | "DRAFT"
+            | "ACTIVE"
+            | "ARCHIVED",
+      }
+    : {}),
+
+  ...(categoryId
+    ? {
+        categories: {
+          some: {
+            categoryId,
+          },
+        },
+      }
+    : {}),
+
+  ...(collectionId
+    ? {
+        collections: {
+          some: {
+            collectionId,
+          },
+        },
+      }
+    : {}),
+
+  ...(productType
+    ? {
+        productType:
+          productType as
+            | "SINGLE"
+            | "COMBO",
+      }
+    : {}),
+
+  ...(jewelleryType
+    ? {
+        jewelleryType:
+          jewelleryType as
+            | "STUD"
+            | "RING"
+            | "HOOP"
+            | "BARBELL"
+            | "CURVED_BARBELL"
+            | "OTHER",
+      }
+    : {}),
+};
+
     const [
-      products,
-      total,
-      totalActive,
-      totalDraft,
-      lowStock,
-    ] = await Promise.all([
-      prisma.product.findMany({
-        skip,
-        take: limit,
+  products,
+  filteredTotal,
+  totalProducts,
+  totalActive,
+  totalDraft,
+  lowStock,
+] = await Promise.all([
+  prisma.product.findMany({
+    where,
+    skip,
+    take: limit,
 
         orderBy: {
           createdAt: "desc",
@@ -1117,7 +1907,11 @@ export async function getProducts(
         },
       }),
 
-      prisma.product.count(),
+      prisma.product.count({
+  where,
+}),
+
+prisma.product.count(),
 
       prisma.product.count({
         where: {
@@ -1256,19 +2050,19 @@ export async function getProducts(
       });
 
     const totalPages =
-      Math.max(
-        1,
-        Math.ceil(total / limit)
-      );
+  Math.max(
+    1,
+    Math.ceil(filteredTotal / limit)
+  );
 
     return res.status(200).json({
       products:
         formattedProducts,
 
       pagination: {
-        page,
-        limit,
-        total,
+  page,
+  limit,
+  total: filteredTotal,
         totalPages,
         hasNextPage:
           page < totalPages,
@@ -1277,7 +2071,7 @@ export async function getProducts(
       },
 
       stats: {
-        totalProducts: total,
+       totalProducts,
         activeProducts:
           totalActive,
         draftProducts:
@@ -1298,3 +2092,217 @@ export async function getProducts(
     });
   }
 }
+
+export async function getProductById(
+  req: Request<{ id: string }>,
+  res: Response
+) {
+  try {
+    const { id } = req.params;
+
+    const product =
+      await prisma.product.findUnique({
+        where: {
+          id,
+        },
+
+        include: {
+          color: {
+            select: {
+              id: true,
+              name: true,
+              hexCode: true,
+            },
+          },
+
+          material: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+
+          images: {
+            select: {
+              id: true,
+              type: true,
+              url: true,
+              storagePath: true,
+            },
+          },
+
+          categories: {
+            include: {
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+
+          collections: {
+            include: {
+              collection: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+
+          comboItems: {
+            include: {
+              itemProduct: {
+                select: {
+                  id: true,
+                  name: true,
+                  sku: true,
+                  stock: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found.",
+      });
+    }
+
+    const productImage =
+      product.images.find(
+        (image) =>
+          image.type === "PRODUCT"
+      );
+
+    const wornImage =
+      product.images.find(
+        (image) =>
+          image.type === "WORN"
+      );
+
+    return res.status(200).json({
+      product: {
+        id: product.id,
+
+        name: product.name,
+        slug: product.slug,
+        sku: product.sku,
+
+        shortDescription:
+          product.shortDescription,
+
+        description:
+          product.description,
+
+        productType:
+          product.productType,
+
+        jewelleryType:
+          product.jewelleryType,
+
+        material:
+          product.material,
+
+        color:
+          product.color,
+
+        antiRust:
+          product.antiRust,
+
+        gauge:
+          product.gauge,
+
+        diameter:
+          product.diameter,
+
+        price:
+          product.price.toString(),
+
+        salePrice:
+          product.salePrice?.toString() ??
+          null,
+
+        stock:
+          product.stock,
+
+        status:
+          product.status,
+
+        isFeatured:
+          product.isFeatured,
+
+        isBestSeller:
+          product.isBestSeller,
+
+        isNewArrival:
+          product.isNewArrival,
+
+        categories:
+          product.categories.map(
+            (item) => item.category
+          ),
+
+        collections:
+          product.collections.map(
+            (item) => item.collection
+          ),
+
+        images: {
+          product:
+            productImage ?? null,
+
+          worn:
+            wornImage ?? null,
+        },
+
+        comboItems:
+          product.comboItems.map(
+            (item) => ({
+              productId:
+                item.itemProduct.id,
+
+              name:
+                item.itemProduct.name,
+
+              sku:
+                item.itemProduct.sku,
+
+              stock:
+                item.itemProduct.stock,
+
+              quantity:
+                item.quantity,
+            })
+          ),
+
+        createdAt:
+          product.createdAt,
+
+        updatedAt:
+          product.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Failed to fetch product:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Unable to load product.",
+    });
+  }
+}
+
+
+
+

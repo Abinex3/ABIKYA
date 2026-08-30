@@ -77,6 +77,23 @@ enum ProductImageType {
   WORN
 }
 
+enum PromotionType {
+  WELCOME
+  FESTIVAL
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT
+}
+
+enum PromotionScope {
+  ALL_PRODUCTS
+  SELECTED_PRODUCTS
+  CATEGORIES
+  COLLECTIONS
+}
+
 model Product {
   id String @id @default(cuid())
 
@@ -119,6 +136,8 @@ model Product {
 
   categories  ProductCategory[]
   collections ProductCollection[]
+
+  promotions PromotionProduct[]
 
   comboItems   ComboItem[] @relation("ComboParent")
   usedInCombos ComboItem[] @relation("ComboChild")
@@ -166,6 +185,8 @@ model Category {
 
   products ProductCategory[]
 
+  promotions PromotionCategory[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -179,6 +200,8 @@ model Collection {
   isActive    Boolean @default(true)
 
   products ProductCollection[]
+
+  promotions PromotionCollection[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -246,4 +269,74 @@ model ComboItem {
 
   @@id([comboProductId, itemProductId])
   @@index([itemProductId])
+}
+
+model Promotion {
+  id String @id @default(cuid())
+
+  name String
+
+  type PromotionType
+
+  discountType  DiscountType
+  discountValue Decimal      @db.Decimal(10, 2)
+
+  scope PromotionScope
+
+  startAt DateTime
+  endAt   DateTime
+
+  isActive Boolean @default(true)
+
+  products    PromotionProduct[]
+  categories  PromotionCategory[]
+  collections PromotionCollection[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([scope])
+  @@index([isActive])
+  @@index([startAt])
+  @@index([endAt])
+}
+
+model PromotionProduct {
+  promotionId String
+  productId   String
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([promotionId, productId])
+  @@index([productId])
+}
+
+model PromotionCategory {
+  promotionId String
+  categoryId  String
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([promotionId, categoryId])
+  @@index([categoryId])
+}
+
+model PromotionCollection {
+  promotionId  String
+  collectionId String
+
+  promotion  Promotion  @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([promotionId, collectionId])
+  @@index([collectionId])
 }

@@ -9,6 +9,15 @@ import AdminLayout from "../components/admin/AdminLayout";
 //Products
 import Products from "../pages/Admin/Products/Products";
 import AddProduct from "../pages/Admin/Products/AddProduct";
+import EditProduct from "../pages/Admin/Products/EditProduct";
+import ViewProduct from "../pages/Admin/Products/ViewProduct";
+
+//Promotions
+import Promotions from "../pages/Admin/Promotions/Promotions";
+import AddPromotion from "../pages/Admin/Promotions/AddPromotion";
+import EditPromotion from "../pages/Admin/Promotions/EditPromotion";
+import ViewPromotion from "../pages/Admin/Promotions/ViewPromotion";
+
 
 const AdminRoutes = () => {
   return (
@@ -29,9 +38,47 @@ const AdminRoutes = () => {
             element={<Products />}
           />
 
-          <Route
+        <Route
   path="/admin/products/new"
   element={<AddProduct />}
+/>
+
+<Route
+  path="/admin/products/:id/edit"
+  element={<EditProduct />}
+/>
+
+<Route
+  path="/admin/products/:id/view"
+  element={<ViewProduct />}
+/>
+
+<Route
+  path="/admin/promotions"
+  element={
+        <Promotions />
+  }
+/>
+
+<Route
+  path="/admin/promotions/new"
+  element={
+    <AddPromotion />
+  }
+/>
+
+<Route
+  path="/admin/promotions/:id/edit"
+  element={
+    <EditPromotion />
+  }
+/>
+
+<Route
+  path="/admin/promotions/:id/view"
+  element={
+    <ViewPromotion />
+  }
 />
           
         </Route>
