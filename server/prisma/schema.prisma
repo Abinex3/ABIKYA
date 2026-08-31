@@ -25,6 +25,8 @@ model AdminUser {
 
   sessions AdminSession[]
 
+  inventoryMovements InventoryMovement[]
+
   @@index([email])
 }
 
@@ -125,6 +127,10 @@ model Product {
   // SINGLE products store physical stock here.
   // COMBO stock is calculated from its component products.
   stock Int?
+
+  lowStockThreshold Int @default(5)
+
+  inventoryMovements InventoryMovement[]
 
   status ProductStatus @default(DRAFT)
 
@@ -339,4 +345,41 @@ model PromotionCollection {
 
   @@id([promotionId, collectionId])
   @@index([collectionId])
+}
+
+enum InventoryMovementType {
+  RECEIVE
+  DAMAGE_LOSS
+  RETURN
+  MANUAL_ADJUSTMENT
+
+  SALE
+  ORDER_CANCEL_RETURN
+}
+
+model InventoryMovement {
+  id String @id @default(cuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  type InventoryMovementType
+
+  quantityDelta Int
+
+  stockBefore Int
+  stockAfter  Int
+
+  note String?
+
+  adminId String
+  admin   AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([adminId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([productId, createdAt])
 }

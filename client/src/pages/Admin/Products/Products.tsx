@@ -32,7 +32,7 @@ import { useNavigate } from "react-router-dom";
 
 const headingFont = "font-['Poppins']";
 const bodyFont = "font-['Google_Sans']";
-const inputFont = "font-['Sora']";
+const inputFont = "font-['Google_Sans']";
 
 const inputFontStyle: CSSProperties = {
   fontFamily: "'Sora', sans-serif",

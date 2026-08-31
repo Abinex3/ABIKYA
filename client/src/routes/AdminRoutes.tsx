@@ -18,6 +18,9 @@ import AddPromotion from "../pages/Admin/Promotions/AddPromotion";
 import EditPromotion from "../pages/Admin/Promotions/EditPromotion";
 import ViewPromotion from "../pages/Admin/Promotions/ViewPromotion";
 
+//Inventory
+import Inventory from "../pages/Admin/Inventory/Inventory";
+import InventoryDetail from "../pages/Admin/Inventory/InventoryDetail";
 
 const AdminRoutes = () => {
   return (
@@ -78,6 +81,20 @@ const AdminRoutes = () => {
   path="/admin/promotions/:id/view"
   element={
     <ViewPromotion />
+  }
+/>
+
+<Route
+  path="/admin/inventory"
+  element={
+        <Inventory />
+  }
+/>
+
+<Route
+  path="/admin/inventory/:productId"
+  element={
+        <InventoryDetail />
   }
 />
           
