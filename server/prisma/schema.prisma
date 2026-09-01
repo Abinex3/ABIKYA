@@ -145,6 +145,8 @@ model Product {
 
   promotions PromotionProduct[]
 
+  giftRules GiftRule[] @relation("GiftProduct")
+
   comboItems   ComboItem[] @relation("ComboParent")
   usedInCombos ComboItem[] @relation("ComboChild")
 
@@ -345,6 +347,37 @@ model PromotionCollection {
 
   @@id([promotionId, collectionId])
   @@index([collectionId])
+}
+
+model GiftRule {
+  id String @id @default(cuid())
+
+  // Minimum total quantity of eligible/order items
+  // required before this gift rule can apply.
+  minimumOrderQuantity Int
+
+  // Optional minimum cart/order value requirement.
+  minimumOrderValue Decimal? @db.Decimal(10, 2)
+
+  // Product that will be given free when this rule applies.
+  giftProductId String
+  giftProduct   Product @relation("GiftProduct", fields: [giftProductId], references: [id], onDelete: Restrict)
+
+  // Number of free units to give.
+  giftQuantity Int @default(1)
+
+  isActive Boolean @default(true)
+
+  startAt DateTime
+  endAt   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([giftProductId])
+  @@index([isActive])
+  @@index([startAt])
+  @@index([endAt])
 }
 
 enum InventoryMovementType {
