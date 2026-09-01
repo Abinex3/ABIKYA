@@ -114,6 +114,12 @@ type InventoryHistoryResponse = {
     InventoryMovement[];
 };
 
+type HistoryPagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
 
 
 /* =========================
@@ -514,6 +520,27 @@ const InventoryDetail =
   useState<HistorySource>(
     "ALL"
   );
+  const [
+  historyPage,
+  setHistoryPage,
+] =
+  useState(1);
+
+const [
+  historyLimit,
+] =
+  useState(10);
+
+const [
+  historyPagination,
+  setHistoryPagination,
+] =
+  useState<HistoryPagination>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
 
     /* =========================
        THRESHOLD MODAL
@@ -571,6 +598,16 @@ const InventoryDetail =
 
         const params =
           new URLSearchParams();
+
+          params.set(
+  "page",
+  String(historyPage)
+);
+
+params.set(
+  "limit",
+  String(historyLimit)
+);
 
         if (
           historyPeriod ===
@@ -638,6 +675,14 @@ const InventoryDetail =
           data.movements ??
             []
         );
+        setHistoryPagination(
+  data.pagination ?? {
+    page: historyPage,
+    limit: historyLimit,
+    total: 0,
+    totalPages: 1,
+  }
+);
       } catch (error) {
         setError(
           error instanceof Error
@@ -656,6 +701,8 @@ const InventoryDetail =
   selectedMonth,
   selectedDate,
   historySource,
+  historyPage,
+  historyLimit,
 ]
   );
 
@@ -883,9 +930,13 @@ useEffect(() => {
             ""
           );
 
-          await loadHistory(
-            false
-          );
+          if (historyPage === 1) {
+  await loadHistory(
+    false
+  );
+} else {
+  setHistoryPage(1);
+}
         } catch (
           error
         ) {
@@ -1040,9 +1091,13 @@ useEffect(() => {
             ""
           );
 
-          await loadHistory(
-            false
-          );
+          if (historyPage === 1) {
+  await loadHistory(
+    false
+  );
+} else {
+  setHistoryPage(1);
+}
         } catch (
           error
         ) {
@@ -1471,6 +1526,8 @@ useEffect(() => {
                         historyPeriod
                       }
                       onChange={(event) => {
+  setHistoryPage(1);
+
   setHistoryPeriod(
     event.target
       .value as HistoryPeriod
@@ -1507,11 +1564,13 @@ useEffect(() => {
                     <select
   value={historySource}
   onChange={(event) => {
-    setHistorySource(
-      event.target
-        .value as HistorySource
-    );
-  }}
+  setHistoryPage(1);
+
+  setHistorySource(
+    event.target
+      .value as HistorySource
+  );
+}}
   className="
     h-10
     rounded-xl
@@ -1546,6 +1605,8 @@ useEffect(() => {
   type="month"
   value={selectedMonth}
   onChange={(event) => {
+  setHistoryPage(1);
+
   setSelectedMonth(
     event.target.value
   );
@@ -1573,6 +1634,8 @@ useEffect(() => {
   type="date"
   value={selectedDate}
   onChange={(event) => {
+  setHistoryPage(1);
+
   setSelectedDate(
     event.target.value
   );
@@ -1941,7 +2004,116 @@ useEffect(() => {
                           </div>
                         )
                       )}
-                    </div>
+                                        </div>
+
+                    {/* =========================
+                        HISTORY PAGINATION
+                    ========================== */}
+
+                    {historyPagination.totalPages >
+                      1 && (
+                      <div
+                        className="
+                          flex
+                          flex-col
+                          gap-3
+                          border-t
+                          border-[#eeeaf3]
+                          bg-white
+                          px-4
+                          py-4
+                          sm:flex-row
+                          sm:items-center
+                          sm:justify-between
+                          sm:px-5
+                        "
+                      >
+                        <p className="text-[11px] font-medium text-[#9c95a5]">
+                          Page{" "}
+                          <span className="font-semibold text-[#554e5e]">
+                            {
+                              historyPagination.page
+                            }
+                          </span>{" "}
+                          of{" "}
+                          <span className="font-semibold text-[#554e5e]">
+                            {
+                              historyPagination.totalPages
+                            }
+                          </span>
+                        </p>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={
+                              historyPagination.page <=
+                              1
+                            }
+                            onClick={() => {
+                              setHistoryPage(
+                                (currentPage) =>
+                                  Math.max(
+                                    1,
+                                    currentPage -
+                                      1
+                                  )
+                              );
+                            }}
+                            className="
+                              h-9
+                              rounded-xl
+                              border
+                              border-[#e8e3ee]
+                              bg-white
+                              px-3.5
+                              text-[11px]
+                              font-semibold
+                              text-[#655e6f]
+                              transition
+                              hover:bg-[#faf8ff]
+                              disabled:cursor-not-allowed
+                              disabled:opacity-40
+                            "
+                          >
+                            Previous
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={
+                              historyPagination.page >=
+                              historyPagination.totalPages
+                            }
+                            onClick={() => {
+                              setHistoryPage(
+                                (currentPage) =>
+                                  Math.min(
+                                    historyPagination.totalPages,
+                                    currentPage +
+                                      1
+                                  )
+                              );
+                            }}
+                            className="
+                              h-9
+                              rounded-xl
+                              bg-[linear-gradient(135deg,#6e59ff,#8c63f5)]
+                              px-3.5
+                              text-[11px]
+                              font-semibold
+                              text-white
+                              transition
+                              hover:opacity-90
+                              disabled:cursor-not-allowed
+                              disabled:opacity-40
+                            "
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </section>

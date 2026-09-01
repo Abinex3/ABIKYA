@@ -18,9 +18,19 @@ import AddPromotion from "../pages/Admin/Promotions/AddPromotion";
 import EditPromotion from "../pages/Admin/Promotions/EditPromotion";
 import ViewPromotion from "../pages/Admin/Promotions/ViewPromotion";
 
-//Inventory
+// Inventory
 import Inventory from "../pages/Admin/Inventory/Inventory";
 import InventoryDetail from "../pages/Admin/Inventory/InventoryDetail";
+
+// Gift
+import GiftMapping from "../pages/Admin/Gifts/GiftMapping";
+import GiftRuleDetails from "../pages/Admin/Gifts/GiftRuleDetails";
+
+// Categories
+import Categories from "../pages/Admin/Categories/Categories"
+import CategoryDetails from "../pages/Admin/Categories/CategoryDetails"
+import Collections from "../pages/Admin/Collection/Collections"
+import CollectionDetails from "../pages/Admin/Collection/CollectionDetails"
 
 const AdminRoutes = () => {
   return (
@@ -95,6 +105,86 @@ const AdminRoutes = () => {
   path="/admin/inventory/:productId"
   element={
         <InventoryDetail />
+  }
+/>
+
+<Route
+  path="/admin/gifts"
+  element={
+    <GiftMapping />
+  }
+/>
+
+<Route
+  path="/admin/gift-mapping/new"
+  element={
+    <GiftRuleDetails mode="ADD" />
+  }
+/>
+
+<Route
+  path="/admin/gift-mapping/:id/view"
+  element={
+    <GiftRuleDetails mode="VIEW" />
+  }
+/>
+
+<Route
+  path="/admin/gift-mapping/:id/edit"
+  element={
+    <GiftRuleDetails mode="EDIT" />
+  }
+/>
+
+<Route
+  path="/admin/categories"
+  element={<Categories />}
+/>
+
+<Route
+  path="/admin/categories/new"
+  element={
+    <CategoryDetails mode="ADD" />
+  }
+/>
+
+<Route
+  path="/admin/categories/:id/view"
+  element={
+    <CategoryDetails mode="VIEW" />
+  }
+/>
+
+<Route
+  path="/admin/categories/:id/edit"
+  element={
+    <CategoryDetails mode="EDIT" />
+  }
+/>
+
+<Route
+  path="/admin/collections"
+  element={<Collections />}
+/>
+
+<Route
+  path="/admin/collections/new"
+  element={
+    <CollectionDetails mode="ADD" />
+  }
+/>
+
+<Route
+  path="/admin/collections/:id/view"
+  element={
+    <CollectionDetails mode="VIEW" />
+  }
+/>
+
+<Route
+  path="/admin/collections/:id/edit"
+  element={
+    <CollectionDetails mode="EDIT" />
   }
 />
           

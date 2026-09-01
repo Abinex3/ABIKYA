@@ -8,6 +8,9 @@ import adminPromotionRoutes from "./routes/adminPromotionRoutes.js";
 import adminInventoryRoutes from "./routes/adminInventoryRoutes.js";
 
 import adminGiftRoutes from "./routes/giftRuleRoutes.js";
+import adminCategoryRoutes from "./routes/adminCategoryRoutes.js";
+import adminCollectionRoutes from "./routes/adminCollectionRoutes.js";
+
 
 const app = express();
 
@@ -33,5 +36,8 @@ app.use("/api/admin/products", adminProductRoutes);
 app.use("/api/admin/promotions", adminPromotionRoutes);
 app.use("/api/admin/inventory", adminInventoryRoutes);
 app.use("/api/admin/gift-rules", adminGiftRoutes);
+app.use("/api/admin/categories", adminCategoryRoutes);
+app.use("/api/admin/collections", adminCollectionRoutes);
+
 
 export default app;
