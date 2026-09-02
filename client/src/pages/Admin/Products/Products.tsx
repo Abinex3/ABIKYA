@@ -1,12 +1,15 @@
 import {
   AlertTriangle,
+  Archive,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Eye,
   Layers3,
-  MoreHorizontal,
   Package,
+  Pencil,
   Plus,
+  RotateCcw,
   Search,
   SlidersHorizontal,
 } from "lucide-react";
@@ -17,7 +20,6 @@ import {
 } from "react";
 
 import type {
-  CSSProperties,
   ReactNode,
 } from "react";
 
@@ -31,12 +33,12 @@ import { useNavigate } from "react-router-dom";
 ========================= */
 
 const headingFont = "font-['Poppins']";
-const bodyFont = "font-['Google_Sans']";
-const inputFont = "font-['Google_Sans']";
 
-const inputFontStyle: CSSProperties = {
-  fontFamily: "'Sora', sans-serif",
-};
+const carlitoFont = "font-['Carlito']";
+
+const statsFont = "font-['Poppins']";
+
+
 
 /* =========================
    TYPES
@@ -699,76 +701,10 @@ const restoreProduct = async (
 };
 
   return (
-    <div
-      className={`w-full pb-10 ${bodyFont}`}
-    >
-      {/* =========================
-          PAGE HEADER
-      ========================== */}
+    <div className="w-full pb-10">
 
-      <div
-        className="
-          mb-6 flex flex-col gap-4
-          rounded-[20px]
-          border border-[#e6def8]
-          bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
-          p-5
-          sm:flex-row
-          sm:items-center
-          sm:justify-between
-        "
-      >
-        <div>
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8368e0]">
-            Catalog
-          </p>
 
-          <h1
-            className={`${headingFont} text-[25px] font-semibold tracking-[-0.03em] text-[#211d29]`}
-          >
-            Products
-          </h1>
-        </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            navigate(
-              "/admin/products/new"
-            )
-          }
-          className="
-            inline-flex h-11
-            shrink-0 items-center
-            justify-center gap-2
-            rounded-xl
-            bg-[linear-gradient(135deg,#6e59ff,#8c63f5)]
-            px-5
-            text-sm font-medium
-            text-white
-            shadow-[0_10px_26px_rgba(110,89,255,0.22)]
-            transition-all
-            duration-200
-            hover:-translate-y-0.5
-            hover:shadow-[0_14px_30px_rgba(110,89,255,0.28)]
-            active:translate-y-0
-          "
-        >
-          <Plus
-            size={18}
-            strokeWidth={2.2}
-          />
-
-          <span className="hidden sm:inline">
-            Add Product
-          </span>
-
-          <span className="sm:hidden">
-            Add
-          </span>
-        </button>
-      </div>
-
+      
       {/* =========================
           ERROR
       ========================== */}
@@ -784,14 +720,14 @@ const restoreProduct = async (
       ========================== */}
 
       <section
-        className="
-          overflow-hidden
-          rounded-[20px]
-          border border-[#e9e5ef]
-          bg-white
-          shadow-[0_8px_30px_rgba(53,42,78,0.035)]
-        "
-      >
+  className="
+    overflow-hidden
+    rounded-[20px]
+    border border-[#e6def8]
+    bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
+    shadow-[0_8px_30px_rgba(53,42,78,0.035)]
+  "
+>
         {/* Toolbar */}
 
         <div
@@ -820,157 +756,164 @@ const restoreProduct = async (
             />
 
             <input
-              type="text"
-              value={search}
-              onChange={(event) => {
-  setSearch(event.target.value);
+  type="text"
+  value={search}
+  onChange={(event) => {
+    setSearch(event.target.value);
 
-  setPagination((current) => ({
-    ...current,
-    page: 1,
-  }));
-}}
-              placeholder="Search product or SKU..."
-              className={`
-                ${inputFont}
-                h-11 w-full
-                rounded-xl
-                border border-[#e8e3ee]
-                bg-[#fbfaff]
-                pl-10 pr-4
-                text-sm text-[#2a2531]
-                outline-none
-                transition
-                placeholder:text-[#aaa4b3]
-                focus:border-[#a997ff]
-                focus:bg-white
-                focus:ring-4
-                focus:ring-[#735cff]/[0.07]
-              `}
-              style={inputFontStyle}
-            />
+    setPagination((current) => ({
+      ...current,
+      page: 1,
+    }));
+  }}
+  placeholder="Search product or SKU..."
+  className={`
+    ${carlitoFont}
+    h-11 w-full
+    rounded-xl
+    border border-[#e8e3ee]
+    bg-[#fbfaff]
+    pl-10 pr-4
+    text-[15px]
+    text-[#2a2531]
+    outline-none
+    transition
+    placeholder:text-[#aaa4b3]
+    focus:border-[#a997ff]
+    focus:bg-white
+    focus:ring-4
+    focus:ring-[#735cff]/[0.07]
+  `}
+/>
           </div>
 
           {/* Filters */}
 
-          <div
-            className="
-              flex w-full gap-2
-              overflow-x-auto pb-1
-              xl:w-auto
-              xl:overflow-visible
-              xl:pb-0
-            "
-          >
-            <div className="relative">
-  <select
-    value={categoryId}
-    onChange={(event) => {
-      setCategoryId(
-        event.target.value
-      );
+          {/* Filters + Add Product */}
+<div
+  className="
+    flex w-full gap-2
+    overflow-x-auto pb-1
+    xl:w-auto
+    xl:items-center
+    xl:overflow-visible
+    xl:pb-0
+  "
+>
+  {/* Category */}
+  <div className="relative">
+    <select
+      value={categoryId}
+      onChange={(event) => {
+        setCategoryId(event.target.value);
 
-      setPagination((current) => ({
-        ...current,
-        page: 1,
-      }));
-    }}
-    className="
-      h-10 appearance-none
-      rounded-xl
-      border border-[#e5deed]
-      bg-white
-      pl-3 pr-9
-      text-[12px]
-      font-medium
-      text-[#6f6677]
-      outline-none
-      transition
-      hover:border-[#d6c8ee]
-      focus:border-[#b8a2ef]
-    "
-  >
-    <option value="">
-      Category
-    </option>
+        setPagination((current) => ({
+          ...current,
+          page: 1,
+        }));
+      }}
+     className={`
+  ${carlitoFont}
+  h-11 appearance-none
+  cursor-pointer
+  rounded-xl
+  border border-[#e8e3ee]
+  bg-white
+  pl-4 pr-9
+  text-[15px]
+  font-normal
+  text-[#655e6f]
+  outline-none
+  transition-all duration-200
 
-    {categories.map((category) => (
-      <option
-        key={category.id}
-        value={category.id}
-      >
-        {category.name}
-      </option>
-    ))}
-  </select>
+  hover:border-[#9d88f7]
+  hover:bg-[#faf8ff]
+  hover:text-[#7057f5]
+  hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
 
-  <ChevronDown
-    size={14}
-    className="
-      pointer-events-none
-      absolute right-3 top-1/2
-      -translate-y-1/2
-      text-[#9c91a5]
-    "
-  />
-</div>
+  focus:border-[#7057f5]
+  focus:ring-4
+  focus:ring-[#7057f5]/10
+`}
+    >
+      <option value="">Category</option>
 
-            <div className="relative">
-  <select
-    value={status}
-    onChange={(event) => {
-      setStatus(
-        event.target.value
-      );
+      {categories.map((category) => (
+        <option
+          key={category.id}
+          value={category.id}
+        >
+          {category.name}
+        </option>
+      ))}
+    </select>
 
-      setPagination((current) => ({
-        ...current,
-        page: 1,
-      }));
-    }}
-    className="
-      h-11 appearance-none
-      rounded-xl
-      border border-[#e8e3ee]
-      bg-white
-      pl-4 pr-9
-      text-sm font-medium
-      text-[#655e6f]
-      outline-none
-      transition
-      hover:border-[#d8d0e5]
-      hover:bg-[#faf8ff]
-    "
-  >
-    <option value="">
-      Status
-    </option>
+    <ChevronDown
+      size={15}
+      className="
+        pointer-events-none
+        absolute right-3 top-1/2
+        -translate-y-1/2
+        text-[#aaa3b2]
+      "
+    />
+  </div>
 
-    <option value="ACTIVE">
-      Active
-    </option>
+  {/* Status */}
+  <div className="relative">
+    <select
+      value={status}
+      onChange={(event) => {
+        setStatus(event.target.value);
 
-    <option value="DRAFT">
-      Draft
-    </option>
+        setPagination((current) => ({
+          ...current,
+          page: 1,
+        }));
+      }}
+    className={`
+  ${carlitoFont}
+  h-11 appearance-none
+  cursor-pointer
+  rounded-xl
+  border border-[#e8e3ee]
+  bg-white
+  pl-4 pr-9
+  text-[15px]
+  font-normal
+  text-[#655e6f]
+  outline-none
+  transition-all duration-200
 
-    <option value="ARCHIVED">
-      Archived
-    </option>
-  </select>
+  hover:border-[#9d88f7]
+  hover:bg-[#faf8ff]
+  hover:text-[#7057f5]
+  hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
 
-  <ChevronDown
-    size={15}
-    className="
-      pointer-events-none
-      absolute right-3 top-1/2
-      -translate-y-1/2
-      text-[#aaa3b2]
-    "
-  />
-</div>
+  focus:border-[#7057f5]
+  focus:ring-4
+  focus:ring-[#7057f5]/10
+`}
+    >
+      <option value="">Status</option>
+      <option value="ACTIVE">Active</option>
+      <option value="DRAFT">Draft</option>
+      <option value="ARCHIVED">Archived</option>
+    </select>
 
-           <div className="relative">
+    <ChevronDown
+      size={15}
+      className="
+        pointer-events-none
+        absolute right-3 top-1/2
+        -translate-y-1/2
+        text-[#aaa3b2]
+      "
+    />
+  </div>
+
+{/* More Filters */}
+<div className="relative">
   <button
     type="button"
     onClick={() =>
@@ -979,259 +922,417 @@ const restoreProduct = async (
       )
     }
     className={`
+      ${carlitoFont}
       inline-flex h-11
       shrink-0 items-center
       gap-2 rounded-xl
-      border bg-white px-4
-      text-sm font-medium
-      transition
+      border px-4
+      text-[15px]
+      font-bold
+      cursor-pointer
+      transition-all duration-200
+
       ${
-        hasMoreFilters
-          ? "border-[#b8a2ef] text-[#6e59ff] bg-[#faf8ff]"
-          : "border-[#e8e3ee] text-[#655e6f] hover:border-[#d8d0e5] hover:bg-[#faf8ff] hover:text-[#6e59ff]"
+        moreFiltersOpen || hasMoreFilters
+          ? `
+            border-[#9d88f7]
+            bg-[#f3efff]
+            text-[#7057f5]
+            shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+          `
+          : `
+            border-[#e8e3ee]
+            bg-white
+            text-[#655e6f]
+            hover:-translate-y-[1px]
+            hover:border-[#9d88f7]
+            hover:bg-[#f8f5ff]
+            hover:text-[#7057f5]
+            hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+          `
       }
     `}
   >
     <SlidersHorizontal size={16} />
 
-    More Filters
+    <span>More Filters</span>
 
     {hasMoreFilters && (
-      <span className="h-1.5 w-1.5 rounded-full bg-[#6e59ff]" />
+      <span className="h-1.5 w-1.5 rounded-full bg-[#7057f5]" />
     )}
+
+    <ChevronDown
+      size={15}
+      className={`
+        transition-transform duration-200
+        ${moreFiltersOpen ? "rotate-180" : ""}
+      `}
+    />
   </button>
 
+  {/* More Filters Dropdown */}
   {moreFiltersOpen && (
     <div
-      className="
+      className={`
+        ${carlitoFont}
         absolute right-0 top-[calc(100%+8px)]
-        z-30 w-[280px]
-        rounded-2xl
-        border border-[#e8e3ee]
-        bg-white p-4
-        shadow-[0_18px_45px_rgba(53,42,78,0.14)]
-      "
+        z-50
+        w-[320px]
+        rounded-[16px]
+        border border-[#e5def3]
+        bg-white
+        p-4
+        shadow-[0_16px_40px_rgba(53,42,78,0.16)]
+      `}
     >
-      <div className="space-y-4">
+      <div className="mb-4">
+        <p className="text-[15px] font-bold text-[#292430]">
+          More Filters
+        </p>
 
+        <p className="mt-0.5 text-[12px] text-[#9991a2]">
+          Refine the product list
+        </p>
+      </div>
+
+      <div className="space-y-3">
         {/* Collection */}
-
         <div>
-          <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
+          <label className="mb-1.5 block text-[12px] font-bold text-[#625b6c]">
             Collection
           </label>
 
-          <select
-            value={collectionId}
-            onChange={(event) => {
-              setCollectionId(
-                event.target.value
-              );
-              resetFilterPage();
-            }}
-            className="
-              h-10 w-full
-              rounded-xl
-              border border-[#e8e3ee]
-              bg-white px-3
-              text-[12px]
-              text-[#655e6f]
-              outline-none
-              focus:border-[#b8a2ef]
-            "
-          >
-            <option value="">
-              All Collections
-            </option>
+          <div className="relative">
+            <select
+              value={collectionId}
+              onChange={(event) => {
+                setCollectionId(
+                  event.target.value
+                );
 
-            {collections.map(
-              (collection) => (
-                <option
-                  key={collection.id}
-                  value={collection.id}
-                >
-                  {collection.name}
-                </option>
-              )
-            )}
-          </select>
+                resetFilterPage();
+              }}
+              className="
+                h-11 w-full
+                cursor-pointer
+                appearance-none
+                rounded-xl
+                border border-[#e8e3ee]
+                bg-white
+                pl-3.5 pr-9
+                text-[14px]
+                text-[#655e6f]
+                outline-none
+                transition-all duration-200
+
+                hover:border-[#9d88f7]
+                hover:bg-[#faf8ff]
+
+                focus:border-[#7057f5]
+                focus:ring-4
+                focus:ring-[#7057f5]/10
+              "
+            >
+              <option value="">
+                All Collections
+              </option>
+
+              {collections.map(
+                (collection) => (
+                  <option
+                    key={collection.id}
+                    value={collection.id}
+                  >
+                    {collection.name}
+                  </option>
+                )
+              )}
+            </select>
+
+            <ChevronDown
+              size={15}
+              className="
+                pointer-events-none
+                absolute right-3 top-1/2
+                -translate-y-1/2
+                text-[#aaa3b2]
+              "
+            />
+          </div>
         </div>
 
         {/* Product Type */}
-
         <div>
-          <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
+          <label className="mb-1.5 block text-[12px] font-bold text-[#625b6c]">
             Product Type
           </label>
 
-          <select
-            value={productType}
-            onChange={(event) => {
-              setProductType(
-                event.target.value
-              );
-              resetFilterPage();
-            }}
-            className="
-              h-10 w-full
-              rounded-xl
-              border border-[#e8e3ee]
-              bg-white px-3
-              text-[12px]
-              text-[#655e6f]
-              outline-none
-              focus:border-[#b8a2ef]
-            "
-          >
-            <option value="">
-              All Product Types
-            </option>
+          <div className="relative">
+            <select
+              value={productType}
+              onChange={(event) => {
+                setProductType(
+                  event.target.value
+                );
 
-            <option value="SINGLE">
-              Single
-            </option>
+                resetFilterPage();
+              }}
+              className="
+                h-11 w-full
+                cursor-pointer
+                appearance-none
+                rounded-xl
+                border border-[#e8e3ee]
+                bg-white
+                pl-3.5 pr-9
+                text-[14px]
+                text-[#655e6f]
+                outline-none
+                transition-all duration-200
 
-            <option value="COMBO">
-              Combo
-            </option>
-          </select>
+                hover:border-[#9d88f7]
+                hover:bg-[#faf8ff]
+
+                focus:border-[#7057f5]
+                focus:ring-4
+                focus:ring-[#7057f5]/10
+              "
+            >
+              <option value="">
+                All Product Types
+              </option>
+
+              <option value="SINGLE">
+                Single
+              </option>
+
+              <option value="COMBO">
+                Combo
+              </option>
+            </select>
+
+            <ChevronDown
+              size={15}
+              className="
+                pointer-events-none
+                absolute right-3 top-1/2
+                -translate-y-1/2
+                text-[#aaa3b2]
+              "
+            />
+          </div>
         </div>
 
         {/* Jewellery Type */}
-
         <div>
-          <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
+          <label className="mb-1.5 block text-[12px] font-bold text-[#625b6c]">
             Jewellery Type
           </label>
 
-          <select
-            value={jewelleryType}
-            onChange={(event) => {
-              setJewelleryType(
-                event.target.value
-              );
-              resetFilterPage();
-            }}
-            className="
-              h-10 w-full
-              rounded-xl
-              border border-[#e8e3ee]
-              bg-white px-3
-              text-[12px]
-              text-[#655e6f]
-              outline-none
-              focus:border-[#b8a2ef]
-            "
-          >
-            <option value="">
-              All Jewellery Types
-            </option>
+          <div className="relative">
+            <select
+              value={jewelleryType}
+              onChange={(event) => {
+                setJewelleryType(
+                  event.target.value
+                );
 
-            <option value="STUD">
-              Stud
-            </option>
+                resetFilterPage();
+              }}
+              className="
+                h-11 w-full
+                cursor-pointer
+                appearance-none
+                rounded-xl
+                border border-[#e8e3ee]
+                bg-white
+                pl-3.5 pr-9
+                text-[14px]
+                text-[#655e6f]
+                outline-none
+                transition-all duration-200
 
-            <option value="RING">
-              Ring
-            </option>
+                hover:border-[#9d88f7]
+                hover:bg-[#faf8ff]
 
-            <option value="HOOP">
-              Hoop
-            </option>
+                focus:border-[#7057f5]
+                focus:ring-4
+                focus:ring-[#7057f5]/10
+              "
+            >
+              <option value="">
+                All Jewellery Types
+              </option>
 
-            <option value="BARBELL">
-              Barbell
-            </option>
+              <option value="STUD">
+                Stud
+              </option>
 
-            <option value="CURVED_BARBELL">
-              Curved Barbell
-            </option>
+              <option value="RING">
+                Ring
+              </option>
 
-            <option value="OTHER">
-              Other
-            </option>
-          </select>
+              <option value="HOOP">
+                Hoop
+              </option>
+
+              <option value="BARBELL">
+                Barbell
+              </option>
+
+              <option value="CURVED_BARBELL">
+                Curved Barbell
+              </option>
+
+              <option value="OTHER">
+                Other
+              </option>
+            </select>
+
+            <ChevronDown
+              size={15}
+              className="
+                pointer-events-none
+                absolute right-3 top-1/2
+                -translate-y-1/2
+                text-[#aaa3b2]
+              "
+            />
+          </div>
         </div>
+      </div>
 
-        {/* Clear */}
+      {/* Bottom Actions */}
+      <div className="mt-4 flex items-center justify-between border-t border-[#eeeaf3] pt-4">
+        <button
+          type="button"
+          onClick={() => {
+            setCollectionId("");
+            setProductType("");
+            setJewelleryType("");
+            resetFilterPage();
+          }}
+          className="
+            cursor-pointer
+            text-[13px]
+            font-bold
+            text-[#8c8496]
+            transition-colors
+            hover:text-[#df5c6d]
+          "
+        >
+          Clear Filters
+        </button>
 
-        {hasMoreFilters && (
-          <button
-            type="button"
-            onClick={() => {
-              setCollectionId("");
-              setProductType("");
-              setJewelleryType("");
-              resetFilterPage();
-            }}
-            className="
-              h-9 w-full
-              rounded-xl
-              bg-[#f3efff]
-              text-[12px]
-              font-semibold
-              text-[#6e59ff]
-              transition
-              hover:bg-[#ece6ff]
-            "
-          >
-            Clear More Filters
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() =>
+            setMoreFiltersOpen(false)
+          }
+          className="
+            inline-flex h-9
+            cursor-pointer
+            items-center justify-center
+            rounded-lg
+            bg-[#7057f5]
+            px-4
+            text-[13px]
+            font-bold
+            text-white
+            transition-all duration-200
+
+            hover:-translate-y-[1px]
+            hover:bg-[#5f47e8]
+            hover:shadow-[0_6px_16px_rgba(112,87,245,0.24)]
+
+            active:translate-y-0
+            active:scale-[0.98]
+          "
+        >
+          Done
+        </button>
       </div>
     </div>
   )}
-</div>          </div>
+</div>
+
+  {/* Add Product */}
+  <button
+  type="button"
+  onClick={() =>
+    navigate("/admin/products/new")
+  }
+  className={`
+  ${carlitoFont}
+  inline-flex h-11
+  shrink-0 items-center
+  justify-center gap-2
+  cursor-pointer
+  rounded-xl
+  border border-[#7057F5]
+  bg-[#7057F5]
+  px-5
+  text-[15px]
+  font-bold
+  text-white
+  shadow-[0_8px_20px_rgba(112,87,245,0.20)]
+  transition-all duration-200
+
+  hover:-translate-y-[2px]
+  hover:bg-[#5f47e8]
+  hover:border-[#5f47e8]
+  hover:shadow-[0_12px_26px_rgba(112,87,245,0.30)]
+
+  active:translate-y-0
+  active:scale-[0.98]
+`}
+>
+  <Plus size={18} strokeWidth={2} />
+
+  Add Product
+</button>
+</div>
         </div>
 
-        {/* =========================
-            STATS
-        ========================== */}
+{/* =========================
+    STATS
+========================== */}
 
-        <div className="grid grid-cols-2 gap-3 border-b border-[#eeeaf3] bg-[#faf8ff] p-4 sm:grid-cols-4">
-          <SummaryItem
-            icon={
-              <Package size={16} />
-            }
-            label="Products"
-            value={String(
-              stats.totalProducts
-            )}
-          />
+<div className="bg-[#f3efff] px-4 py-5">
+  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <SummaryItem
+      icon={<Package size={17} />}
+      label="Total Products"
+      value={String(stats.totalProducts)}
+      description="Products in catalog"
+      tone="violet"
+    />
 
-          <SummaryItem
-            icon={
-              <Layers3 size={16} />
-            }
-            label="Active"
-            value={String(
-              stats.activeProducts
-            )}
-          />
+    <SummaryItem
+      icon={<Layers3 size={17} />}
+      label="Active Products"
+      value={String(stats.activeProducts)}
+      description="Currently available"
+      tone="green"
+    />
 
-          <SummaryItem
-            icon={
-              <AlertTriangle
-                size={16}
-              />
-            }
-            label="Low Stock"
-            value={String(
-              stats.lowStockProducts
-            )}
-            warning
-          />
+    <SummaryItem
+      icon={<AlertTriangle size={17} />}
+      label="Low Stock"
+      value={String(stats.lowStockProducts)}
+      description="Require attention"
+      tone="orange"
+    />
 
-          <SummaryItem
-            icon={
-              <Package size={16} />
-            }
-            label="Draft"
-            value={String(
-              stats.draftProducts
-            )}
-          />
-        </div>
+    <SummaryItem
+      icon={<Package size={17} />}
+      label="Draft Products"
+      value={String(stats.draftProducts)}
+      description="Not published yet"
+      tone="slate"
+    />
+  </div>
+</div>
 
         {/* =========================
             LOADING
@@ -1282,7 +1383,17 @@ const restoreProduct = async (
                       "/admin/products/new"
                     )
                   }
-                  className="mt-4 inline-flex h-9 items-center gap-2 rounded-xl bg-[#eee6ff] px-4 text-[12px] font-semibold text-[#6750d4]"
+                  className={`
+  ${carlitoFont}
+  mt-4 inline-flex h-9
+  items-center gap-2
+  rounded-xl
+  bg-[#eee6ff]
+  px-4
+  text-[12px]
+  font-bold
+  text-[#6750d4]
+`}
                 >
                   <Plus size={14} />
                   Add Product
@@ -1297,8 +1408,25 @@ const restoreProduct = async (
 
         {!loading &&
           products.length > 0 && (
-            <div className="hidden overflow-x-auto lg:block">
-              <table className="w-full min-w-[1050px] border-collapse">
+<div className="hidden px-4 pb-4 lg:block">
+  <div
+    className="
+      overflow-hidden
+      rounded-[18px]
+      border border-[#e5def3]
+      bg-white
+      shadow-[0_8px_24px_rgba(64,48,105,0.06)]
+    "
+  >
+    <div className="overflow-x-auto">
+      <table
+        className={`
+          ${carlitoFont}
+          w-full
+          min-w-[1050px]
+          border-collapse
+        `}
+      >
                 <thead>
                   <tr className="bg-[linear-gradient(135deg,#7c5cfa_0%,#6c4cf0_100%)]">
                     <TableHeading>
@@ -1329,11 +1457,13 @@ const restoreProduct = async (
                       Status
                     </TableHeading>
 
-                    <th className="w-[64px] px-4 py-3.5" />
+                    <th className="w-[230px] px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-white">
+  Actions
+</th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-[#f0edf3]">
+                <tbody className="divide-y divide-[#f0edf3] bg-white">
                   {products.map(
                     (product) => {
                       const status =
@@ -1361,11 +1491,12 @@ const restoreProduct = async (
                             product.id
                           }
                           className="
-                            group
-                            transition-colors
-                            duration-150
-                            hover:bg-[#fcfbff]
-                          "
+  group
+  bg-white
+  transition-colors
+  duration-150
+  hover:bg-[#f8f5ff]
+"
                         >
                           {/* Product */}
 
@@ -1378,13 +1509,13 @@ const restoreProduct = async (
                               />
 
                               <div className="min-w-0">
-                                <p className="max-w-[220px] truncate text-sm font-semibold text-[#292430]">
+                                <p className="max-w-[220px] truncate text-[15px] font-bold text-[#292430]">
                                   {
                                     product.name
                                   }
                                 </p>
 
-                                <p className="mt-1 text-xs font-medium tracking-[0.02em] text-[#aaa3b2]">
+<p className="mt-1 text-[13px] text-[#aaa3b2]">
                                   {
                                     product.sku
                                   }
@@ -1522,167 +1653,158 @@ const restoreProduct = async (
                             />
                           </td>
 
-                          {/* Action */}
+                          {/* Actions */}
 
-                          <td className="px-4 py-4">
-                            <div className="relative">
+<td className="px-5 py-4">
+ <div className="flex items-center gap-1.5">
+  {/* View */}
   <button
     type="button"
-    aria-label={`Actions for ${product.name}`}
+    title="View product"
+    aria-label={`View ${product.name}`}
     onClick={() =>
-      setOpenActionId((current) =>
-        current === product.id
-          ? null
-          : product.id
-      )
+      navigate(`/admin/products/${product.id}/view`)
     }
     className="
-      flex h-9 w-9
-      items-center
-      justify-center
-      rounded-lg
-      text-[#9a93a3]
-      transition
-      hover:bg-[#f2eeff]
-      hover:text-[#6e59ff]
-    "
+  flex h-9 w-9
+  cursor-pointer
+  items-center justify-center
+  rounded-lg
+  border border-[#e5e0ee]
+  bg-white
+  text-[#625b6c]
+  transition-all duration-200
+
+  hover:-translate-y-[1px]
+  hover:border-[#7057f5]
+  hover:bg-[#7057f5]
+  hover:text-white
+  hover:shadow-[0_5px_14px_rgba(112,87,245,0.22)]
+
+  active:translate-y-0
+  active:scale-95
+"
   >
-    <MoreHorizontal size={19} />
+    <Eye size={16} strokeWidth={1.9} />
   </button>
 
-  {openActionId === product.id && (
-    <div
-      className="
-        absolute right-0 top-[calc(100%+6px)]
-        z-40 w-[140px]
-        overflow-hidden
-        rounded-xl
-        border border-[#e8e3ee]
-        bg-white
-        py-1.5
-        shadow-[0_14px_35px_rgba(53,42,78,0.14)]
-      "
-    >
-      <button
-        type="button"
-        onClick={() => {
-          setOpenActionId(null);
-
-          navigate(
-            `/admin/products/${product.id}/edit`
-          );
-        }}
-        className="
-          flex w-full items-center
-          px-3 py-2
-          text-left
-          text-[12px]
-          font-medium
-          text-[#5f5867]
-          transition
-          hover:bg-[#f7f4ff]
-          hover:text-[#6e59ff]
-        "
-      >
-        Edit
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-  setOpenActionId(null);
-
-  navigate(
-    `/admin/products/${product.id}/view`
-  );
-}}
-        className="
-          flex w-full items-center
-          px-3 py-2
-          text-left
-          text-[12px]
-          font-medium
-          text-[#5f5867]
-          transition
-          hover:bg-[#f7f4ff]
-        "
-      >
-        View
-      </button>
-
-      {product.status === "ARCHIVED" ? (
+  {/* Edit */}
   <button
     type="button"
-    onClick={() => {
-      const confirmed =
-        window.confirm(
+    title="Edit product"
+    aria-label={`Edit ${product.name}`}
+    onClick={() =>
+      navigate(`/admin/products/${product.id}/edit`)
+    }
+    className="
+  flex h-9 w-9
+  cursor-pointer
+  items-center justify-center
+  rounded-lg
+  border border-[#ddd4ff]
+  bg-[#eee9ff]
+  text-[#7057f5]
+  transition-all duration-200
+
+  hover:-translate-y-[1px]
+  hover:border-[#7057f5]
+  hover:bg-[#7057f5]
+  hover:text-white
+  hover:shadow-[0_5px_14px_rgba(112,87,245,0.22)]
+
+  active:translate-y-0
+  active:scale-95
+"
+  >
+    <Pencil size={16} strokeWidth={1.9} />
+  </button>
+
+  {/* Archive / Restore */}
+  {product.status === "ARCHIVED" ? (
+    <button
+      type="button"
+      title="Restore product"
+      aria-label={`Restore ${product.name}`}
+      onClick={() => {
+        const confirmed = window.confirm(
           `Restore "${product.name}" to Draft?`
         );
 
-      if (!confirmed) {
-        return;
-      }
+        if (!confirmed) return;
 
-      void restoreProduct(
-        product.id
-      );
-    }}
-    className="
-      flex w-full items-center
-      px-3 py-2
-      text-left
-      text-[12px]
-      font-medium
-      text-[#4f8d67]
-      transition
-      hover:bg-[#f2fbf5]
-    "
-  >
-    Restore
-  </button>
-) : (
-  <button
-    type="button"
-    onClick={() => {
-      const confirmed =
-        window.confirm(
+        void restoreProduct(product.id);
+      }}
+      className="
+  flex h-9 w-9
+  cursor-pointer
+  items-center justify-center
+  rounded-lg
+  border border-[#ccefd9]
+  bg-[#eaf8ef]
+  text-[#39975b]
+  transition-all duration-200
+
+  hover:-translate-y-[1px]
+  hover:border-[#39975b]
+  hover:bg-[#39975b]
+  hover:text-white
+  hover:shadow-[0_5px_14px_rgba(57,151,91,0.20)]
+
+  active:translate-y-0
+  active:scale-95
+"
+    >
+      <RotateCcw size={16} strokeWidth={1.9} />
+    </button>
+  ) : (
+    <button
+      type="button"
+      title="Archive product"
+      aria-label={`Archive ${product.name}`}
+      onClick={() => {
+        const confirmed = window.confirm(
           `Archive "${product.name}"?`
         );
 
-      if (!confirmed) {
-        return;
-      }
+        if (!confirmed) return;
 
-      void archiveProduct(
-        product.id
-      );
-    }}
-    className="
-      flex w-full items-center
-      px-3 py-2
-      text-left
-      text-[12px]
-      font-medium
-      text-[#d95c70]
-      transition
-      hover:bg-[#fff4f5]
-    "
-  >
-    Archive
-  </button>
-)}
-    </div>
+        void archiveProduct(product.id);
+      }}
+      className="
+  flex h-9 w-9
+  cursor-pointer
+  items-center justify-center
+  rounded-lg
+  border border-[#ffd9df]
+  bg-[#fff0f2]
+  text-[#df5c6d]
+  transition-all duration-200
+
+  hover:-translate-y-[1px]
+  hover:border-[#df5c6d]
+  hover:bg-[#df5c6d]
+  hover:text-white
+  hover:shadow-[0_5px_14px_rgba(223,92,109,0.20)]
+
+  active:translate-y-0
+  active:scale-95
+"
+    >
+      <Archive size={16} strokeWidth={1.9} />
+    </button>
   )}
 </div>
-                          </td>
+</td>
                         </tr>
                       );
                     }
                   )}
                 </tbody>
-              </table>
-            </div>
-          )}
+      </table>
+    </div>
+  </div>
+</div>
+)}
 
         {/* =========================
             MOBILE / TABLET
@@ -1690,7 +1812,13 @@ const restoreProduct = async (
 
         {!loading &&
           products.length > 0 && (
-            <div className="divide-y divide-[#eeeaf3] lg:hidden">
+            <div
+  className={`
+    ${carlitoFont}
+    divide-y divide-[#eeeaf3]
+    lg:hidden
+  `}
+>
               {products.map(
                 (product) => {
                   const status =
@@ -1744,106 +1872,142 @@ const restoreProduct = async (
                               </p>
                             </div>
 
-                            <div className="relative">
+                         <div className="flex items-center gap-2">
+  {/* View */}
   <button
     type="button"
-    aria-label={`Actions for ${product.name}`}
-    onClick={() =>
-      setOpenActionId((current) =>
-        current === product.id
-          ? null
-          : product.id
-      )
-    }
+    onClick={() => {
+      navigate(
+        `/admin/products/${product.id}/view`
+      );
+    }}
     className="
-      flex h-9 w-9
-      items-center
-      justify-center
+      inline-flex h-9 items-center
+      justify-center gap-1.5
       rounded-lg
-      text-[#9a93a3]
-      transition
-      hover:bg-[#f2eeff]
-      hover:text-[#6e59ff]
+      border border-[#e5e0ee]
+      bg-white
+      px-3
+      text-[11px]
+      font-semibold
+      text-[#625b6c]
+      transition-all duration-200
+
+      hover:border-[#cfc4ee]
+      hover:bg-[#f8f5ff]
+      hover:text-[#7057f5]
     "
   >
-    <MoreHorizontal size={19} />
+    <Eye
+      size={14}
+      strokeWidth={1.9}
+    />
+    View
   </button>
 
-  {openActionId === product.id && (
-    <div
+  {/* Edit */}
+  <button
+    type="button"
+    onClick={() => {
+      navigate(
+        `/admin/products/${product.id}/edit`
+      );
+    }}
+    className="
+      inline-flex h-9 items-center
+      justify-center gap-1.5
+      rounded-lg
+      bg-[#eee9ff]
+      px-3
+      text-[11px]
+      font-semibold
+      text-[#7057f5]
+      transition-all duration-200
+
+      hover:bg-[#7057f5]
+      hover:text-white
+    "
+  >
+    <Pencil
+      size={14}
+      strokeWidth={1.9}
+    />
+    Edit
+  </button>
+
+  {/* Archive / Restore */}
+  {product.status === "ARCHIVED" ? (
+    <button
+      type="button"
+      onClick={() => {
+        const confirmed =
+          window.confirm(
+            `Restore "${product.name}" to Draft?`
+          );
+
+        if (!confirmed) return;
+
+        void restoreProduct(
+          product.id
+        );
+      }}
       className="
-        absolute right-0 top-[calc(100%+6px)]
-        z-40 w-[140px]
-        overflow-hidden
-        rounded-xl
-        border border-[#e8e3ee]
-        bg-white
-        py-1.5
-        shadow-[0_14px_35px_rgba(53,42,78,0.14)]
+        inline-flex h-9 items-center
+        justify-center gap-1.5
+        rounded-lg
+        bg-[#eaf8ef]
+        px-3
+        text-[11px]
+        font-semibold
+        text-[#39975b]
+        transition-all duration-200
+
+        hover:bg-[#39975b]
+        hover:text-white
       "
     >
-      <button
-        type="button"
-        onClick={() => {
-          setOpenActionId(null);
-
-          navigate(
-            `/admin/products/${product.id}/edit`
+      <RotateCcw
+        size={14}
+        strokeWidth={1.9}
+      />
+      Restore
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={() => {
+        const confirmed =
+          window.confirm(
+            `Archive "${product.name}"?`
           );
-        }}
-        className="
-          flex w-full items-center
-          px-3 py-2
-          text-left
-          text-[12px]
-          font-medium
-          text-[#5f5867]
-          transition
-          hover:bg-[#f7f4ff]
-          hover:text-[#6e59ff]
-        "
-      >
-        Edit
-      </button>
 
-      <button
-        type="button"
-        onClick={() => {
-          setOpenActionId(null);
-        }}
-        className="
-          flex w-full items-center
-          px-3 py-2
-          text-left
-          text-[12px]
-          font-medium
-          text-[#5f5867]
-          transition
-          hover:bg-[#f7f4ff]
-        "
-      >
-        View
-      </button>
+        if (!confirmed) return;
 
-      <button
-        type="button"
-        onClick={() => {
-          setOpenActionId(null);
-        }}
-        className="
-          flex w-full items-center
-          px-3 py-2
-          text-left
-          text-[12px]
-          font-medium
-          text-[#d95c70]
-          transition
-          hover:bg-[#fff4f5]
-        "
-      >
-        Archive
-      </button>
-    </div>
+        void archiveProduct(
+          product.id
+        );
+      }}
+      className="
+        inline-flex h-9 items-center
+        justify-center gap-1.5
+        rounded-lg
+        bg-[#fff0f2]
+        px-3
+        text-[11px]
+        font-semibold
+        text-[#df5c6d]
+        transition-all duration-200
+
+        hover:bg-[#df5c6d]
+        hover:text-white
+      "
+    >
+      <Archive
+        size={14}
+        strokeWidth={1.9}
+      />
+      Archive
+    </button>
   )}
 </div>
                           </div>
@@ -1953,16 +2117,17 @@ const restoreProduct = async (
         {!loading &&
           pagination.total > 0 && (
             <div
-              className="
-                flex flex-col gap-3
-                border-t border-[#eeeaf3]
-                px-4 py-4
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
-                sm:px-5
-              "
-            >
+  className={`
+    ${carlitoFont}
+    flex flex-col gap-3
+    border-t border-[#eeeaf3]
+    px-4 py-4
+    sm:flex-row
+    sm:items-center
+    sm:justify-between
+    sm:px-5
+  `}
+>
               <p className="text-xs text-[#9991a2]">
                 Showing{" "}
                 <span className="font-medium text-[#5e5768]">
@@ -2113,18 +2278,20 @@ const FilterButton = ({
   return (
     <button
       type="button"
-      className="
-        inline-flex h-11
-        shrink-0 items-center
-        gap-2 rounded-xl
-        border border-[#e8e3ee]
-        bg-white px-4
-        text-sm font-medium
-        text-[#655e6f]
-        transition
-        hover:border-[#d8d0e5]
-        hover:bg-[#faf8ff]
-      "
+      className={`
+  ${carlitoFont}
+  inline-flex h-11
+  shrink-0 items-center
+  gap-2 rounded-xl
+  border border-[#e8e3ee]
+  bg-white px-4
+  text-[15px]
+  font-bold
+  text-[#655e6f]
+  transition
+  hover:border-[#d8d0e5]
+  hover:bg-[#faf8ff]
+`}
     >
       {label}
 
@@ -2140,80 +2307,166 @@ const FilterButton = ({
    SUMMARY CARD
 ========================= */
 
+type SummaryTone =
+  | "violet"
+  | "green"
+  | "orange"
+  | "slate";
+
 const SummaryItem = ({
   icon,
   label,
   value,
-  warning = false,
+  description,
+  tone = "violet",
 }: {
-  icon?: ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
-  warning?: boolean;
+  description: string;
+  tone?: SummaryTone;
 }) => {
+  const tones: Record<
+    SummaryTone,
+    {
+      icon: string;
+      accent: string;
+      badge: string;
+    }
+  > = {
+    violet: {
+      icon: "bg-[#eee9ff] text-[#7057f5]",
+      accent: "bg-[#7057f5]",
+      badge: "bg-[#eee9ff] text-[#7057f5]",
+    },
+
+    green: {
+      icon: "bg-[#e9f9f1] text-[#3eaa79]",
+      accent: "bg-[#49c68e]",
+      badge: "bg-[#e9f9f1] text-[#39986d]",
+    },
+
+    orange: {
+      icon: "bg-[#fff1e5] text-[#ef8b3e]",
+      accent: "bg-[#ff9b50]",
+      badge: "bg-[#fff1e5] text-[#df7d34]",
+    },
+
+    slate: {
+      icon: "bg-[#f0eef4] text-[#777080]",
+      accent: "bg-[#aaa3b3]",
+      badge: "bg-[#f0eef4] text-[#777080]",
+    },
+  };
+
+  const currentTone = tones[tone];
+
   return (
     <div
-      className={`
-        relative overflow-hidden
-        rounded-2xl
-        border
-        p-4
-        shadow-[0_8px_22px_rgba(76,60,120,0.06)]
-        ${
-          warning
-            ? "border-[#f6dfc8] bg-[linear-gradient(135deg,#fffaf6,#fff2e8)]"
-            : "border-[#e9e2fb] bg-[linear-gradient(135deg,#ffffff,#f5f1ff)]"
-        }
-      `}
-    >
+  className={`
+    ${statsFont}
+    group relative
+    min-h-[118px]
+    overflow-hidden
+    rounded-[18px]
+    border border-white/80
+    bg-white
+    p-4
+    shadow-[0_8px_24px_rgba(79,61,126,0.08)]
+    transition-all duration-200
+    hover:-translate-y-0.5
+    hover:shadow-[0_12px_30px_rgba(79,61,126,0.12)]
+  `}
+>
+      {/* Right accent */}
       <div
         className={`
-          absolute -right-5 -top-5
-          h-16 w-16
+          absolute
+          -right-[34px]
+          top-1/2
+          h-[76px]
+          w-[76px]
+          -translate-y-1/2
           rounded-full
-          ${
-            warning
-              ? "bg-[#ffb66b]/10"
-              : "bg-[#8a70ff]/10"
-          }
+          opacity-90
+          ${currentTone.accent}
         `}
       />
 
-      <div className="relative z-10 flex items-center justify-between">
-        <div
-          className={`
-            flex h-9 w-9
-            items-center
-            justify-center
-            rounded-xl
-            ${
-              warning
-                ? "bg-[#fff0e2] text-[#e58a43]"
-                : "bg-[#eee9ff] text-[#6e59ff]"
-            }
-          `}
-        >
-          {icon}
+      {/* Soft accent glow */}
+      <div
+        className={`
+          absolute
+          -right-[15px]
+          top-1/2
+          h-[86px]
+          w-[86px]
+          -translate-y-1/2
+          rounded-full
+          opacity-[0.08]
+          blur-xl
+          ${currentTone.accent}
+        `}
+      />
+
+      <div className="relative z-10">
+        {/* Top */}
+        <div className="flex items-start justify-between gap-3">
+          <div
+            className={`
+              flex h-9 w-9
+              items-center justify-center
+              rounded-xl
+              ${currentTone.icon}
+            `}
+          >
+            {icon}
+          </div>
+
+          <span
+            className={`
+              mr-3 rounded-full
+              px-2 py-1
+              text-[9px]
+              font-semibold
+              ${currentTone.badge}
+            `}
+          >
+            {label === "Active Products"
+              ? "LIVE"
+              : label === "Low Stock"
+                ? "CHECK"
+                : label === "Draft Products"
+                  ? "DRAFT"
+                  : "ALL"}
+          </span>
         </div>
 
-        <span
-          className={`
-            ${headingFont}
-            text-lg font-semibold
-            ${
-              warning
-                ? "text-[#d97a36]"
-                : "text-[#292430]"
-            }
-          `}
-        >
-          {value}
-        </span>
-      </div>
+        {/* Content */}
+        <div className="mt-3">
+          <p className="text-[10px] font-medium text-[#91899c]">
+            {label}
+          </p>
 
-      <p className="relative z-10 mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-[#958da0]">
-        {label}
-      </p>
+          <div className="mt-0.5 flex items-end gap-2">
+            <span
+  className="
+    text-[22px]
+    font-semibold
+    leading-none
+    tracking-[-0.04em]
+    text-[#211d29]
+  "
+>
+  {value}
+</span>
+          </div>
+
+          <p className="mt-1.5 text-[9px] text-[#aaa3b2]">
+            {description}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
@@ -2233,10 +2486,10 @@ const TableHeading = ({
         whitespace-nowrap
         px-5 py-3.5
         text-left
-        text-[11px]
-        font-semibold
+        text-[12px]
+        font-bold
         uppercase
-        tracking-[0.08em]
+        tracking-[0.06em]
         text-white
       "
     >

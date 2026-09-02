@@ -3,6 +3,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  CircleOff,
   History,
   Package,
   Search,
@@ -18,18 +19,19 @@ import type {
   ReactNode,
 } from "react";
 
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+} from "react-router-dom";
 
 /* =========================
    TYPOGRAPHY
-
-   Headings -> Poppins
-   Everything else -> Sans
 ========================= */
 
-const headingFont = "font-['Poppins']";
-const bodyFont = "font-sans";
-const inputFont = "font-sans";
+const carlitoFont =
+  "font-['Carlito']";
+
+const statsFont =
+  "font-['Poppins']";
 
 /* =========================
    TYPES
@@ -95,9 +97,7 @@ type InventoryStats = {
 
 type InventoryResponse = {
   products: InventoryProduct[];
-
   pagination: Pagination;
-
   stats: InventoryStats;
 };
 
@@ -157,80 +157,71 @@ const formatStockStatus = (
 ========================= */
 
 const Inventory = () => {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
   const [
     products,
     setProducts,
-  ] =
-    useState<
-      InventoryProduct[]
-    >([]);
+  ] = useState<
+    InventoryProduct[]
+  >([]);
 
   const [
     pagination,
     setPagination,
-  ] =
-    useState<Pagination>({
-      page: 1,
-      limit: 20,
-      total: 0,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    });
+  ] = useState<Pagination>({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
 
   const [
     stats,
     setStats,
-  ] =
-    useState<InventoryStats>({
-      totalProducts: 0,
-      lowStockProducts: 0,
-      outOfStockProducts: 0,
-    });
+  ] = useState<InventoryStats>({
+    totalProducts: 0,
+    lowStockProducts: 0,
+    outOfStockProducts: 0,
+  });
 
   const [
     loading,
     setLoading,
-  ] =
-    useState(true);
+  ] = useState(true);
 
   const [
     error,
     setError,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     search,
     setSearch,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     debouncedSearch,
     setDebouncedSearch,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     status,
     setStatus,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     stockStatus,
     setStockStatus,
-  ] =
-    useState("");
+  ] = useState("");
 
   const [
     moreFiltersOpen,
     setMoreFiltersOpen,
-  ] =
-    useState(false);
+  ] = useState(false);
 
   /* =========================
      DEBOUNCED SEARCH
@@ -238,11 +229,14 @@ const Inventory = () => {
 
   useEffect(() => {
     const timeoutId =
-      window.setTimeout(() => {
-        setDebouncedSearch(
-          search.trim()
-        );
-      }, 350);
+      window.setTimeout(
+        () => {
+          setDebouncedSearch(
+            search.trim()
+          );
+        },
+        350
+      );
 
     return () => {
       window.clearTimeout(
@@ -303,6 +297,7 @@ const Inventory = () => {
               `http://localhost:5000/api/admin/inventory?${params.toString()}`,
               {
                 method: "GET",
+
                 credentials:
                   "include",
               }
@@ -327,10 +322,6 @@ const Inventory = () => {
           const inventoryData =
             data as InventoryResponse;
 
-          /*
-           * Same last-page safety pattern
-           * used in Products.
-           */
           if (
             pagination.page >
             inventoryData
@@ -394,7 +385,8 @@ const Inventory = () => {
       page < 1 ||
       page >
         pagination.totalPages ||
-      page === pagination.page
+      page ===
+        pagination.page
     ) {
       return;
     }
@@ -425,8 +417,7 @@ const Inventory = () => {
   const startItem =
     pagination.total === 0
       ? 0
-      : (pagination.page -
-          1) *
+      : (pagination.page - 1) *
           pagination.limit +
         1;
 
@@ -445,60 +436,25 @@ const Inventory = () => {
   ========================= */
 
   return (
-    <div
-      className={`w-full pb-10 ${bodyFont}`}
-    >
-      {/* =========================
-          PAGE HEADER
-      ========================== */}
-
-      <div
-        className="
-          mb-6 flex flex-col gap-4
-          rounded-[20px]
-          border border-[#e6def8]
-          bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
-          p-5
-          sm:flex-row
-          sm:items-center
-          sm:justify-between
-        "
-      >
-        <div>
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8368e0]">
-            Stock Management
-          </p>
-
-          <h1
-            className={`${headingFont} text-[25px] font-semibold tracking-[-0.03em] text-[#211d29]`}
-          >
-            Inventory
-          </h1>
-        </div>
-
-        <div
-          className="
-            rounded-xl
-            border border-[#ded4f7]
-            bg-white/70
-            px-4 py-2.5
-            text-[12px]
-            font-medium
-            text-[#6e6479]
-            shadow-sm
-          "
-        >
-          SINGLE product stock
-          management
-        </div>
-      </div>
-
+    <div className="w-full pb-10">
       {/* =========================
           ERROR
       ========================== */}
 
       {error && (
-        <div className="mb-5 rounded-xl border border-[#f3ccd3] bg-[#fff4f5] px-4 py-3 text-[12px] font-medium text-[#d95c70]">
+        <div
+          className={`
+            ${carlitoFont}
+            mb-5
+            rounded-xl
+            border border-[#f3ccd3]
+            bg-[#fff4f5]
+            px-4 py-3
+            text-[13px]
+            font-bold
+            text-[#d95c70]
+          `}
+        >
           {error}
         </div>
       )}
@@ -509,10 +465,13 @@ const Inventory = () => {
 
       <section
         className="
-          overflow-hidden
+          overflow-visible
           rounded-[20px]
-          border border-[#e9e5ef]
-          bg-white
+          border
+          border-[#e6def8]
+
+          bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
+
           shadow-[0_8px_30px_rgba(53,42,78,0.035)]
         "
       >
@@ -522,9 +481,14 @@ const Inventory = () => {
 
         <div
           className="
-            flex flex-col gap-3
-            border-b border-[#eeeaf3]
+            flex flex-col
+            gap-3
+
+            border-b
+            border-[#e4dcf2]
+
             p-4
+
             xl:flex-row
             xl:items-center
             xl:justify-between
@@ -538,9 +502,13 @@ const Inventory = () => {
               strokeWidth={2}
               className="
                 pointer-events-none
-                absolute left-3.5
+
+                absolute
+                left-3.5
                 top-1/2
+
                 -translate-y-1/2
+
                 text-[#aaa3b4]
               "
             />
@@ -552,116 +520,110 @@ const Inventory = () => {
                 event
               ) => {
                 setSearch(
-                  event.target
-                    .value
+                  event.target.value
                 );
 
-                setPagination(
-                  (
-                    current
-                  ) => ({
-                    ...current,
-                    page: 1,
-                  })
-                );
+                resetFilterPage();
               }}
               placeholder="Search product or SKU..."
               className={`
-                ${inputFont}
-                h-11 w-full
+                ${carlitoFont}
+
+                h-11
+                w-full
+
                 rounded-xl
-                border border-[#e8e3ee]
-                bg-[#fbfaff]
-                pl-10 pr-4
-                text-sm
+
+                border
+                border-[#e8e3ee]
+
+                bg-white
+
+                pl-10
+                pr-4
+
+                text-[15px]
                 text-[#2a2531]
+
                 outline-none
-                transition
+
+                transition-all
+                duration-200
+
                 placeholder:text-[#aaa4b3]
-                focus:border-[#a997ff]
+
+                hover:border-[#9d88f7]
+                hover:bg-[#faf8ff]
+
+                focus:border-[#7057f5]
                 focus:bg-white
                 focus:ring-4
-                focus:ring-[#735cff]/[0.07]
+                focus:ring-[#7057f5]/10
               `}
             />
           </div>
 
-          {/* Filters */}
+          {/* FILTERS */}
 
           <div
             className="
-              flex w-full gap-2
-              overflow-x-auto pb-1
+              flex
+              w-full
+              gap-2
+
+              overflow-x-auto
+              pb-1
+
               xl:w-auto
+              xl:items-center
               xl:overflow-visible
               xl:pb-0
             "
           >
-            {/* Stock filter */}
+            {/* STOCK STATUS */}
 
-            <div className="relative">
-              <select
-                value={
-                  stockStatus
-                }
-                onChange={(
-                  event
-                ) => {
-                  setStockStatus(
-                    event.target
-                      .value
-                  );
+            <SelectFilter
+              value={
+                stockStatus
+              }
+              onChange={(
+                value
+              ) => {
+                setStockStatus(
+                  value
+                );
 
-                  resetFilterPage();
-                }}
-                className="
-                  h-11
-                  appearance-none
-                  rounded-xl
-                  border
-                  border-[#e8e3ee]
-                  bg-white
-                  pl-4 pr-9
-                  text-sm
-                  font-medium
-                  text-[#655e6f]
-                  outline-none
-                  transition
-                  hover:border-[#d8d0e5]
-                  hover:bg-[#faf8ff]
-                  focus:border-[#b8a2ef]
-                "
-              >
-                <option value="">
-                  Stock Status
-                </option>
+                resetFilterPage();
+              }}
+              label="Stock Status"
+              options={[
+                {
+                  value:
+                    "IN_STOCK",
 
-                <option value="IN_STOCK">
-                  In Stock
-                </option>
+                  label:
+                    "In Stock",
+                },
 
-                <option value="LOW">
-                  Low Stock
-                </option>
+                {
+                  value:
+                    "LOW",
 
-                <option value="OUT">
-                  Out of Stock
-                </option>
-              </select>
+                  label:
+                    "Low Stock",
+                },
 
-              <ChevronDown
-                size={15}
-                className="
-                  pointer-events-none
-                  absolute right-3
-                  top-1/2
-                  -translate-y-1/2
-                  text-[#aaa3b2]
-                "
-              />
-            </div>
+                {
+                  value:
+                    "OUT",
 
-            {/* More filters */}
+                  label:
+                    "Out of Stock",
+                },
+              ]}
+            />
+
+            {/* MORE FILTERS */}
 
             <div className="relative">
               <button
@@ -675,23 +637,56 @@ const Inventory = () => {
                   )
                 }
                 className={`
+                  ${carlitoFont}
+
                   inline-flex
                   h-11
+
                   shrink-0
+
+                  cursor-pointer
+
                   items-center
+
                   gap-2
+
                   rounded-xl
+
                   border
-                  bg-white
+
                   px-4
-                  text-sm
-                  font-medium
-                  transition
+
+                  text-[15px]
+                  font-bold
+
+                  transition-all
+                  duration-200
 
                   ${
+                    moreFiltersOpen ||
                     hasMoreFilters
-                      ? "border-[#b8a2ef] bg-[#faf8ff] text-[#6e59ff]"
-                      : "border-[#e8e3ee] text-[#655e6f] hover:border-[#d8d0e5] hover:bg-[#faf8ff] hover:text-[#6e59ff]"
+                      ? `
+                        border-[#9d88f7]
+                        bg-[#f3efff]
+                        text-[#7057f5]
+
+                        shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+                      `
+                      : `
+                        border-[#e8e3ee]
+                        bg-white
+                        text-[#655e6f]
+
+                        hover:-translate-y-[1px]
+
+                        hover:border-[#9d88f7]
+
+                        hover:bg-[#f8f5ff]
+
+                        hover:text-[#7057f5]
+
+                        hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+                      `
                   }
                 `}
               >
@@ -702,105 +697,167 @@ const Inventory = () => {
                 More Filters
 
                 {hasMoreFilters && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#6e59ff]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7057f5]" />
                 )}
+
+                <ChevronDown
+                  size={15}
+                  className={`
+                    transition-transform
+                    duration-200
+
+                    ${
+                      moreFiltersOpen
+                        ? "rotate-180"
+                        : ""
+                    }
+                  `}
+                />
               </button>
+
+              {/* MORE FILTER DROPDOWN */}
 
               {moreFiltersOpen && (
                 <div
-                  className="
-                    absolute right-0
+                  className={`
+                    ${carlitoFont}
+
+                    absolute
+                    right-0
                     top-[calc(100%+8px)]
-                    z-30
-                    w-[260px]
-                    rounded-2xl
-                    border border-[#e8e3ee]
+
+                    z-[80]
+
+                    w-[300px]
+
+                    rounded-[16px]
+
+                    border
+                    border-[#e5def3]
+
                     bg-white
+
                     p-4
-                    shadow-[0_18px_45px_rgba(53,42,78,0.14)]
-                  "
+
+                    shadow-[0_16px_40px_rgba(53,42,78,0.16)]
+                  `}
                 >
-                  <div className="space-y-4">
-                    <div>
-                      <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
-                        Product
-                        Status
-                      </label>
+                  <div className="mb-4">
+                    <p className="text-[15px] font-bold text-[#292430]">
+                      More Filters
+                    </p>
 
-                      <select
-                        value={
-                          status
-                        }
-                        onChange={(
-                          event
-                        ) => {
-                          setStatus(
-                            event
-                              .target
-                              .value
-                          );
+                    <p className="mt-0.5 text-[12px] text-[#9991a2]">
+                      Refine inventory products
+                    </p>
+                  </div>
 
-                          resetFilterPage();
-                        }}
-                        className="
-                          h-10
-                          w-full
-                          rounded-xl
-                          border
-                          border-[#e8e3ee]
-                          bg-white
-                          px-3
-                          text-[12px]
-                          text-[#655e6f]
-                          outline-none
-                          focus:border-[#b8a2ef]
-                        "
-                      >
-                        <option value="">
-                          All
-                          Statuses
-                        </option>
+                  <PopupSelect
+                    label="Product Status"
+                    value={status}
+                    onChange={(
+                      value
+                    ) => {
+                      setStatus(
+                        value
+                      );
 
-                        <option value="ACTIVE">
-                          Active
-                        </option>
+                      resetFilterPage();
+                    }}
+                    options={[
+                      {
+                        value:
+                          "ACTIVE",
 
-                        <option value="DRAFT">
-                          Draft
-                        </option>
+                        label:
+                          "Active",
+                      },
 
-                        <option value="ARCHIVED">
-                          Archived
-                        </option>
-                      </select>
-                    </div>
+                      {
+                        value:
+                          "DRAFT",
 
-                    {hasMoreFilters && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setStatus(
-                            ""
-                          );
+                        label:
+                          "Draft",
+                      },
 
-                          resetFilterPage();
-                        }}
-                        className="
-                          h-9
-                          w-full
-                          rounded-xl
-                          bg-[#f3efff]
-                          text-[12px]
-                          font-semibold
-                          text-[#6e59ff]
-                          transition
-                          hover:bg-[#ece6ff]
-                        "
-                      >
-                        Clear More
-                        Filters
-                      </button>
-                    )}
+                      {
+                        value:
+                          "ARCHIVED",
+
+                        label:
+                          "Archived",
+                      },
+                    ]}
+                  />
+
+                  <div className="mt-4 flex items-center justify-between border-t border-[#eeeaf3] pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatus(
+                          ""
+                        );
+
+                        resetFilterPage();
+                      }}
+                      className="
+                        cursor-pointer
+
+                        text-[13px]
+                        font-bold
+
+                        text-[#8c8496]
+
+                        transition-colors
+
+                        hover:text-[#df5c6d]
+                      "
+                    >
+                      Clear Filters
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMoreFiltersOpen(
+                          false
+                        )
+                      }
+                      className="
+                        inline-flex
+                        h-9
+
+                        cursor-pointer
+
+                        items-center
+                        justify-center
+
+                        rounded-lg
+
+                        bg-[#7057f5]
+
+                        px-4
+
+                        text-[13px]
+                        font-bold
+
+                        text-white
+
+                        transition-all
+                        duration-200
+
+                        hover:-translate-y-[1px]
+                        hover:bg-[#5f47e8]
+
+                        hover:shadow-[0_6px_16px_rgba(112,87,245,0.24)]
+
+                        active:translate-y-0
+                        active:scale-[0.98]
+                      "
+                    >
+                      Done
+                    </button>
                   </div>
                 </div>
               )}
@@ -812,44 +869,53 @@ const Inventory = () => {
             STATS
         ========================== */}
 
-        <div className="grid grid-cols-1 gap-3 border-b border-[#eeeaf3] bg-[#faf8ff] p-4 sm:grid-cols-3">
-          <SummaryItem
-            icon={
-              <Package
-                size={16}
-              />
-            }
-            label="Inventory Products"
-            value={String(
-              stats.totalProducts
-            )}
-          />
+        <div className="bg-[#f3efff] px-4 py-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <SummaryItem
+              icon={
+                <Package
+                  size={17}
+                />
+              }
+              label="Inventory Products"
+              value={String(
+                stats.totalProducts
+              )}
+              description="Products tracked in stock"
+              tone="violet"
+              badge="ALL"
+            />
 
-          <SummaryItem
-            icon={
-              <AlertTriangle
-                size={16}
-              />
-            }
-            label="Low Stock"
-            value={String(
-              stats.lowStockProducts
-            )}
-            warning
-          />
+            <SummaryItem
+              icon={
+                <AlertTriangle
+                  size={17}
+                />
+              }
+              label="Low Stock"
+              value={String(
+                stats.lowStockProducts
+              )}
+              description="Require stock attention"
+              tone="orange"
+              badge="CHECK"
+            />
 
-          <SummaryItem
-            icon={
-              <Package
-                size={16}
-              />
-            }
-            label="Out of Stock"
-            value={String(
-              stats.outOfStockProducts
-            )}
-            danger
-          />
+            <SummaryItem
+              icon={
+                <CircleOff
+                  size={17}
+                />
+              }
+              label="Out of Stock"
+              value={String(
+                stats.outOfStockProducts
+              )}
+              description="Currently unavailable"
+              tone="red"
+              badge="OUT"
+            />
+          </div>
         </div>
 
         {/* =========================
@@ -861,7 +927,17 @@ const Inventory = () => {
             <div className="text-center">
               <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#ded5f8] border-t-[#725aff]" />
 
-              <p className="mt-3 text-[12px] text-[#91899a]">
+              <p
+                className={`
+                  ${carlitoFont}
+
+                  mt-3
+
+                  text-[13px]
+
+                  text-[#91899a]
+                `}
+              >
                 Loading inventory...
               </p>
             </div>
@@ -875,25 +951,37 @@ const Inventory = () => {
         {!loading &&
           products.length ===
             0 && (
-            <div className="flex min-h-[320px] flex-col items-center justify-center px-5 text-center">
+            <div
+              className={`
+                ${carlitoFont}
+
+                flex
+
+                min-h-[320px]
+
+                flex-col
+
+                items-center
+                justify-center
+
+                px-5
+
+                text-center
+              `}
+            >
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eee9ff] text-[#725aff]">
                 <Package
                   size={24}
                 />
               </div>
 
-              <h3
-                className={`${headingFont} mt-4 text-[14px] font-semibold text-[#332d3b]`}
-              >
-                No inventory
-                products found
+              <h3 className="mt-4 text-[15px] font-bold text-[#332d3b]">
+                No inventory products found
               </h3>
 
-              <p className="mt-1 max-w-[340px] text-[11px] leading-5 text-[#9a92a2]">
-                Try another
-                product name,
-                SKU, or stock
-                filter.
+              <p className="mt-1 max-w-[340px] text-[12px] leading-5 text-[#9a92a2]">
+                Try another product name,
+                SKU, or stock filter.
               </p>
             </div>
           )}
@@ -905,211 +993,260 @@ const Inventory = () => {
         {!loading &&
           products.length >
             0 && (
-            <div className="hidden overflow-x-auto lg:block">
-              <table className="w-full min-w-[980px] border-collapse">
-                <thead>
-                  <tr className="bg-[linear-gradient(135deg,#7c5cfa_0%,#6c4cf0_100%)]">
-                    <TableHeading>
-                      Product
-                    </TableHeading>
+            <div className="hidden px-4 pb-4 lg:block">
+              <div
+                className="
+                  overflow-hidden
 
-                    <TableHeading>
-                      Type
-                    </TableHeading>
+                  rounded-[18px]
 
-                    <TableHeading>
-                      Current
-                      Stock
-                    </TableHeading>
+                  border
+                  border-[#e5def3]
 
-                    <TableHeading>
-                      Threshold
-                    </TableHeading>
+                  bg-white
 
-                    <TableHeading>
-                      Stock
-                      Status
-                    </TableHeading>
+                  shadow-[0_8px_24px_rgba(64,48,105,0.06)]
+                "
+              >
+                <div className="overflow-x-auto">
+                  <table
+                    className={`
+                      ${carlitoFont}
 
-                    <TableHeading>
-                      Product
-                      Status
-                    </TableHeading>
+                      w-full
 
-                    <TableHeading>
-                      Last
-                      Updated
-                    </TableHeading>
+                      min-w-[1100px]
 
-                    <TableHeading>
-                      Actions
-                    </TableHeading>
-                  </tr>
-                </thead>
+                      border-collapse
+                    `}
+                  >
+                    <thead>
+                      <tr className="bg-[linear-gradient(135deg,#7c5cfa_0%,#6c4cf0_100%)]">
+                        <TableHeading>
+                          Product
+                        </TableHeading>
 
-                <tbody className="divide-y divide-[#f0edf3]">
-                  {products.map(
-                    (
-                      product
-                    ) => (
-                      <tr
-                        key={
-                          product.id
-                        }
-                        className="
-                          group
-                          transition-colors
-                          duration-150
-                          hover:bg-[#fcfbff]
-                        "
-                      >
-                        {/* Product */}
+                        <TableHeading>
+                          Type
+                        </TableHeading>
 
-                        <td className="px-5 py-4">
-                          <div className="flex min-w-[220px] items-center gap-3">
-                            <InventoryThumbnail
-                              product={
-                                product
-                              }
-                            />
+                        <TableHeading>
+                          Current Stock
+                        </TableHeading>
 
-                            <div className="min-w-0">
-                              <p className="max-w-[220px] truncate text-sm font-semibold text-[#292430]">
-                                {
-                                  product.name
-                                }
-                              </p>
+                        <TableHeading>
+                          Threshold
+                        </TableHeading>
 
-                              <p className="mt-1 text-xs font-medium tracking-[0.02em] text-[#aaa3b2]">
-                                {
-                                  product.sku
-                                }
-                              </p>
-                            </div>
-                          </div>
-                        </td>
+                        <TableHeading>
+                          Stock Status
+                        </TableHeading>
 
-                        {/* Type */}
+                        <TableHeading>
+                          Product Status
+                        </TableHeading>
 
-                        <td className="px-5 py-4">
-                          <span className="text-sm text-[#625b6c]">
-                            {formatJewelleryType(
-                              product.jewelleryType
-                            )}
-                          </span>
-                        </td>
+                        <TableHeading>
+                          Last Updated
+                        </TableHeading>
 
-                        {/* Stock */}
+                        <TableHeading>
+                          Action
+                        </TableHeading>
+                      </tr>
+                    </thead>
 
-                        <td className="px-5 py-4">
-                          <span
-                            className={`text-sm font-semibold ${
-                              product.stockStatus ===
-                              "OUT"
-                                ? "text-[#df5c6d]"
-                                : product.stockStatus ===
-                                    "LOW"
-                                  ? "text-[#e18642]"
-                                  : "text-[#292430]"
-                            }`}
-                          >
-                            {
-                              product.stock
-                            }
-                          </span>
-                        </td>
-
-                        {/* Threshold */}
-
-                        <td className="px-5 py-4">
-                          <span className="text-sm font-medium text-[#625b6c]">
-                            {
-                              product.lowStockThreshold
-                            }
-                          </span>
-                        </td>
-
-                        {/* Stock status */}
-
-                        <td className="px-5 py-4">
-                          <StockStatusBadge
-                            status={
-                              product.stockStatus
-                            }
-                          />
-                        </td>
-
-                        {/* Product status */}
-
-                        <td className="px-5 py-4">
-                          <ProductStatusBadge
-                            status={
-                              product.status
-                            }
-                          />
-                        </td>
-
-                        {/* Updated */}
-
-                        <td className="px-5 py-4">
-                          <span className="whitespace-nowrap text-xs text-[#8f8798]">
-                            {new Date(
-                              product.updatedAt
-                            ).toLocaleString(
-                              "en-IN",
-                              {
-                                dateStyle:
-                                  "medium",
-                                timeStyle:
-                                  "short",
-                              }
-                            )}
-                          </span>
-                        </td>
-
-                        {/* Action */}
-
-                        <td className="px-5 py-4">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              navigate(
-                                `/admin/inventory/${product.id}`
-                              )
+                    <tbody className="divide-y divide-[#f0edf3] bg-white">
+                      {products.map(
+                        (
+                          product
+                        ) => (
+                          <tr
+                            key={
+                              product.id
                             }
                             className="
-                              inline-flex
-                              h-9
-                              items-center
-                              gap-2
-                              rounded-xl
-                              border
-                              border-[#e8e3ee]
+                              group
+
                               bg-white
-                              px-3
-                              text-[12px]
-                              font-semibold
-                              text-[#655e6f]
-                              transition
-                              hover:border-[#cdbff0]
+
+                              transition-colors
+                              duration-150
+
                               hover:bg-[#f8f5ff]
-                              hover:text-[#6e59ff]
                             "
                           >
-                            <History
-                              size={
-                                14
-                              }
-                            />
+                            {/* PRODUCT */}
 
-                            Manage
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  )}
-                </tbody>
-              </table>
+                            <td className="px-5 py-4">
+                              <div className="flex min-w-[220px] items-center gap-3">
+                                <InventoryThumbnail
+                                  product={
+                                    product
+                                  }
+                                />
+
+                                <div className="min-w-0">
+                                  <p className="max-w-[220px] truncate text-[15px] font-bold text-[#292430]">
+                                    {
+                                      product.name
+                                    }
+                                  </p>
+
+                                  <p className="mt-1 text-[13px] text-[#aaa3b2]">
+                                    {
+                                      product.sku
+                                    }
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* TYPE */}
+
+                            <td className="px-5 py-4">
+                              <span className="text-[15px] text-[#625b6c]">
+                                {formatJewelleryType(
+                                  product.jewelleryType
+                                )}
+                              </span>
+                            </td>
+
+                            {/* CURRENT STOCK */}
+
+                            <td className="px-5 py-4">
+                              <span
+                                className={`
+                                  text-[15px]
+                                  font-bold
+
+                                  ${
+                                    product.stockStatus ===
+                                    "OUT"
+                                      ? "text-[#df5c6d]"
+                                      : product.stockStatus ===
+                                          "LOW"
+                                        ? "text-[#e18642]"
+                                        : "text-[#292430]"
+                                  }
+                                `}
+                              >
+                                {
+                                  product.stock
+                                }
+                              </span>
+                            </td>
+
+                            {/* THRESHOLD */}
+
+                            <td className="px-5 py-4">
+                              <span className="text-[15px] text-[#625b6c]">
+                                {
+                                  product.lowStockThreshold
+                                }
+                              </span>
+                            </td>
+
+                            {/* STOCK STATUS */}
+
+                            <td className="px-5 py-4">
+                              <StockStatusBadge
+                                status={
+                                  product.stockStatus
+                                }
+                              />
+                            </td>
+
+                            {/* PRODUCT STATUS */}
+
+                            <td className="px-5 py-4">
+                              <ProductStatusBadge
+                                status={
+                                  product.status
+                                }
+                              />
+                            </td>
+
+                            {/* LAST UPDATED */}
+
+                            <td className="px-5 py-4">
+                              <span className="whitespace-nowrap text-[13px] text-[#8f8798]">
+                                {new Date(
+                                  product.updatedAt
+                                ).toLocaleString(
+                                  "en-IN",
+                                  {
+                                    dateStyle:
+                                      "medium",
+
+                                    timeStyle:
+                                      "short",
+                                  }
+                                )}
+                              </span>
+                            </td>
+
+                            {/* ACTION */}
+
+                            <td className="px-5 py-4">
+                              <button
+                                type="button"
+                                title="Manage inventory"
+                                aria-label={`Manage inventory for ${product.name}`}
+                                onClick={() =>
+                                  navigate(
+                                    `/admin/inventory/${product.id}`
+                                  )
+                                }
+                                className="
+                                  flex
+                                  h-9
+                                  w-9
+
+                                  cursor-pointer
+
+                                  items-center
+                                  justify-center
+
+                                  rounded-lg
+
+                                  border
+                                  border-[#ddd4ff]
+
+                                  bg-[#eee9ff]
+
+                                  text-[#7057f5]
+
+                                  transition-all
+                                  duration-200
+
+                                  hover:-translate-y-[1px]
+
+                                  hover:border-[#7057f5]
+
+                                  hover:bg-[#7057f5]
+
+                                  hover:text-white
+
+                                  hover:shadow-[0_5px_14px_rgba(112,87,245,0.22)]
+
+                                  active:translate-y-0
+                                  active:scale-95
+                                "
+                              >
+                                <History
+                                  size={16}
+                                  strokeWidth={1.9}
+                                />
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1120,7 +1257,16 @@ const Inventory = () => {
         {!loading &&
           products.length >
             0 && (
-            <div className="divide-y divide-[#eeeaf3] lg:hidden">
+            <div
+              className={`
+                ${carlitoFont}
+
+                divide-y
+                divide-[#e6def0]
+
+                lg:hidden
+              `}
+            >
               {products.map(
                 (
                   product
@@ -1130,9 +1276,14 @@ const Inventory = () => {
                       product.id
                     }
                     className="
+                      bg-white/60
+
                       p-4
+
                       transition-colors
-                      hover:bg-[#fcfbff]
+                      duration-200
+
+                      hover:bg-white
                     "
                   >
                     <div className="flex items-start gap-3">
@@ -1145,13 +1296,13 @@ const Inventory = () => {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-[#292430]">
+                            <p className="truncate text-[15px] font-bold text-[#292430]">
                               {
                                 product.name
                               }
                             </p>
 
-                            <p className="mt-1 text-xs text-[#a29aaa]">
+                            <p className="mt-1 text-[13px] text-[#a29aaa]">
                               {
                                 product.sku
                               }
@@ -1207,8 +1358,9 @@ const Inventory = () => {
                     </div>
 
                     <div className="mt-4 flex items-center justify-between border-t border-[#f0edf3] pt-3">
-                      <span className="text-[11px] text-[#9c95a5]">
+                      <span className="text-[12px] text-[#9c95a5]">
                         Updated{" "}
+
                         {new Date(
                           product.updatedAt
                         ).toLocaleDateString(
@@ -1218,31 +1370,47 @@ const Inventory = () => {
 
                       <button
                         type="button"
+                        title="Manage inventory"
+                        aria-label={`Manage inventory for ${product.name}`}
                         onClick={() =>
                           navigate(
                             `/admin/inventory/${product.id}`
                           )
                         }
                         className="
-                          inline-flex
+                          flex
                           h-9
+                          w-9
+
+                          cursor-pointer
+
                           items-center
-                          gap-2
-                          rounded-xl
-                          bg-[#f2eeff]
-                          px-3
-                          text-[12px]
-                          font-semibold
-                          text-[#6e59ff]
-                          transition
-                          hover:bg-[#eae4ff]
+                          justify-center
+
+                          rounded-lg
+
+                          border
+                          border-[#ddd4ff]
+
+                          bg-[#eee9ff]
+
+                          text-[#7057f5]
+
+                          transition-all
+                          duration-200
+
+                          hover:border-[#7057f5]
+
+                          hover:bg-[#7057f5]
+
+                          hover:text-white
+
+                          active:scale-95
                         "
                       >
                         <History
-                          size={14}
+                          size={16}
                         />
-
-                        Manage
                       </button>
                     </div>
                   </div>
@@ -1259,19 +1427,30 @@ const Inventory = () => {
           pagination.total >
             0 && (
             <div
-              className="
-                flex flex-col gap-3
-                border-t border-[#eeeaf3]
-                px-4 py-4
+              className={`
+                ${carlitoFont}
+
+                flex
+                flex-col
+
+                gap-3
+
+                border-t
+                border-[#e6def0]
+
+                px-4
+                py-4
+
                 sm:flex-row
                 sm:items-center
                 sm:justify-between
                 sm:px-5
-              "
+              `}
             >
-              <p className="text-xs text-[#9991a2]">
+              <p className="text-[13px] text-[#9991a2]">
                 Showing{" "}
-                <span className="font-medium text-[#5e5768]">
+
+                <span className="font-bold text-[#5e5768]">
                   {
                     startItem
                   }
@@ -1280,8 +1459,10 @@ const Inventory = () => {
                     endItem
                   }
                 </span>{" "}
+
                 of{" "}
-                <span className="font-medium text-[#5e5768]">
+
+                <span className="font-bold text-[#5e5768]">
                   {
                     pagination.total
                   }{" "}
@@ -1320,12 +1501,14 @@ const Inventory = () => {
                   .slice(
                     Math.max(
                       0,
+
                       pagination.page -
                         3
                     ),
 
                     Math.min(
                       pagination.totalPages,
+
                       pagination.page +
                         2
                     )
@@ -1379,15 +1562,253 @@ const Inventory = () => {
 };
 
 /* =========================
+   SELECT FILTER
+========================= */
+
+const SelectFilter = ({
+  value,
+  onChange,
+  label,
+  options,
+}: {
+  value: string;
+
+  onChange: (
+    value: string
+  ) => void;
+
+  label: string;
+
+  options: {
+    value: string;
+    label: string;
+  }[];
+}) => {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(event) =>
+          onChange(
+            event.target.value
+          )
+        }
+        className={`
+          ${carlitoFont}
+
+          h-11
+
+          cursor-pointer
+
+          appearance-none
+
+          rounded-xl
+
+          border
+          border-[#e8e3ee]
+
+          bg-white
+
+          pl-4
+          pr-9
+
+          text-[15px]
+
+          text-[#655e6f]
+
+          outline-none
+
+          transition-all
+          duration-200
+
+          hover:border-[#9d88f7]
+
+          hover:bg-[#faf8ff]
+
+          hover:text-[#7057f5]
+
+          hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+
+          focus:border-[#7057f5]
+
+          focus:ring-4
+
+          focus:ring-[#7057f5]/10
+        `}
+      >
+        <option value="">
+          {label}
+        </option>
+
+        {options.map(
+          (
+            option
+          ) => (
+            <option
+              key={
+                option.value
+              }
+              value={
+                option.value
+              }
+            >
+              {
+                option.label
+              }
+            </option>
+          )
+        )}
+      </select>
+
+      <ChevronDown
+        size={15}
+        className="
+          pointer-events-none
+
+          absolute
+          right-3
+          top-1/2
+
+          -translate-y-1/2
+
+          text-[#aaa3b2]
+        "
+      />
+    </div>
+  );
+};
+
+/* =========================
+   POPUP SELECT
+========================= */
+
+const PopupSelect = ({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+
+  value: string;
+
+  onChange: (
+    value: string
+  ) => void;
+
+  options: {
+    value: string;
+    label: string;
+  }[];
+}) => {
+  return (
+    <div>
+      <label className="mb-1.5 block text-[12px] font-bold text-[#625b6c]">
+        {label}
+      </label>
+
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(event) =>
+            onChange(
+              event.target.value
+            )
+          }
+          className="
+            h-11
+            w-full
+
+            cursor-pointer
+
+            appearance-none
+
+            rounded-xl
+
+            border
+            border-[#e8e3ee]
+
+            bg-white
+
+            pl-3.5
+            pr-9
+
+            text-[14px]
+
+            text-[#655e6f]
+
+            outline-none
+
+            transition-all
+            duration-200
+
+            hover:border-[#9d88f7]
+
+            hover:bg-[#faf8ff]
+
+            focus:border-[#7057f5]
+
+            focus:ring-4
+
+            focus:ring-[#7057f5]/10
+          "
+        >
+          <option value="">
+            All Statuses
+          </option>
+
+          {options.map(
+            (
+              option
+            ) => (
+              <option
+                key={
+                  option.value
+                }
+                value={
+                  option.value
+                }
+              >
+                {
+                  option.label
+                }
+              </option>
+            )
+          )}
+        </select>
+
+        <ChevronDown
+          size={15}
+          className="
+            pointer-events-none
+
+            absolute
+            right-3
+            top-1/2
+
+            -translate-y-1/2
+
+            text-[#aaa3b2]
+          "
+        />
+      </div>
+    </div>
+  );
+};
+
+/* =========================
    THUMBNAIL
 ========================= */
 
 const InventoryThumbnail = ({
   product,
 }: {
-  product: InventoryProduct;
+  product:
+    InventoryProduct;
 }) => {
-  if (product.image) {
+  if (
+    product.image
+  ) {
     return (
       <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#eee9f5] bg-[#f8f5ff]">
         <img
@@ -1407,13 +1828,22 @@ const InventoryThumbnail = ({
   return (
     <div
       className="
-        flex h-12 w-12
+        flex
+        h-12
+        w-12
+
         shrink-0
+
         items-center
         justify-center
+
         rounded-xl
-        border border-[#eee9f5]
+
+        border
+        border-[#eee9f5]
+
         bg-[linear-gradient(145deg,#f8f5ff,#f0ebff)]
+
         text-[#8068f7]
       "
     >
@@ -1429,99 +1859,224 @@ const InventoryThumbnail = ({
    SUMMARY CARD
 ========================= */
 
+type SummaryTone =
+  | "violet"
+  | "orange"
+  | "red";
+
 const SummaryItem = ({
   icon,
   label,
   value,
-  warning = false,
-  danger = false,
+  description,
+  tone = "violet",
+  badge,
 }: {
-  icon?: ReactNode;
+  icon: ReactNode;
+
   label: string;
+
   value: string;
-  warning?: boolean;
-  danger?: boolean;
+
+  description: string;
+
+  tone?:
+    SummaryTone;
+
+  badge: string;
 }) => {
-  const cardStyle =
-    danger
-      ? "border-[#f5d4d9] bg-[linear-gradient(135deg,#fffafa,#fff2f4)]"
-      : warning
-        ? "border-[#f6dfc8] bg-[linear-gradient(135deg,#fffaf6,#fff2e8)]"
-        : "border-[#e9e2fb] bg-[linear-gradient(135deg,#ffffff,#f5f1ff)]";
+  const tones: Record<
+    SummaryTone,
+    {
+      icon: string;
+      accent: string;
+      badge: string;
+    }
+  > = {
+    violet: {
+      icon:
+        "bg-[#eee9ff] text-[#7057f5]",
 
-  const iconStyle =
-    danger
-      ? "bg-[#fff0f2] text-[#df5c6d]"
-      : warning
-        ? "bg-[#fff0e2] text-[#e58a43]"
-        : "bg-[#eee9ff] text-[#6e59ff]";
+      accent:
+        "bg-[#7057f5]",
 
-  const valueStyle =
-    danger
-      ? "text-[#d75b6c]"
-      : warning
-        ? "text-[#d97a36]"
-        : "text-[#292430]";
+      badge:
+        "bg-[#eee9ff] text-[#7057f5]",
+    },
 
-  const bubbleStyle =
-    danger
-      ? "bg-[#eb6576]/10"
-      : warning
-        ? "bg-[#ffb66b]/10"
-        : "bg-[#8a70ff]/10";
+    orange: {
+      icon:
+        "bg-[#fff1e5] text-[#ef8b3e]",
+
+      accent:
+        "bg-[#ff9b50]",
+
+      badge:
+        "bg-[#fff1e5] text-[#df7d34]",
+    },
+
+    red: {
+      icon:
+        "bg-[#fff0f2] text-[#df5c6d]",
+
+      accent:
+        "bg-[#e76779]",
+
+      badge:
+        "bg-[#fff0f2] text-[#df5c6d]",
+    },
+  };
+
+  const currentTone =
+    tones[tone];
 
   return (
     <div
       className={`
+        ${statsFont}
+
+        group
         relative
+
+        min-h-[118px]
+
         overflow-hidden
-        rounded-2xl
+
+        rounded-[18px]
+
         border
+        border-white/80
+
+        bg-white
+
         p-4
-        shadow-[0_8px_22px_rgba(76,60,120,0.06)]
-        ${cardStyle}
+
+        shadow-[0_8px_24px_rgba(79,61,126,0.08)]
+
+        transition-all
+        duration-200
+
+        hover:-translate-y-0.5
+
+        hover:shadow-[0_12px_30px_rgba(79,61,126,0.12)]
       `}
     >
+      {/* RIGHT ACCENT */}
+
       <div
         className={`
           absolute
-          -right-5
-          -top-5
-          h-16
-          w-16
+
+          -right-[34px]
+
+          top-1/2
+
+          h-[76px]
+          w-[76px]
+
+          -translate-y-1/2
+
           rounded-full
-          ${bubbleStyle}
+
+          opacity-90
+
+          ${currentTone.accent}
         `}
       />
 
-      <div className="relative z-10 flex items-center justify-between">
-        <div
-          className={`
-            flex h-9 w-9
-            items-center
-            justify-center
-            rounded-xl
-            ${iconStyle}
-          `}
-        >
-          {icon}
+      {/* SOFT GLOW */}
+
+      <div
+        className={`
+          absolute
+
+          -right-[15px]
+
+          top-1/2
+
+          h-[86px]
+          w-[86px]
+
+          -translate-y-1/2
+
+          rounded-full
+
+          opacity-[0.08]
+
+          blur-xl
+
+          ${currentTone.accent}
+        `}
+      />
+
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div
+            className={`
+              flex
+              h-9
+              w-9
+
+              items-center
+              justify-center
+
+              rounded-xl
+
+              ${currentTone.icon}
+            `}
+          >
+            {icon}
+          </div>
+
+          <span
+            className={`
+              mr-3
+
+              rounded-full
+
+              px-2
+              py-1
+
+              text-[9px]
+              font-semibold
+
+              ${currentTone.badge}
+            `}
+          >
+            {badge}
+          </span>
         </div>
 
-        <span
-          className={`
-            ${headingFont}
-            text-lg
-            font-semibold
-            ${valueStyle}
-          `}
-        >
-          {value}
-        </span>
-      </div>
+        <div className="mt-3">
+          <p className="text-[10px] font-medium text-[#91899c]">
+            {label}
+          </p>
 
-      <p className="relative z-10 mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-[#958da0]">
-        {label}
-      </p>
+          <span
+            className="
+              mt-0.5
+
+              block
+
+              text-[22px]
+
+              font-semibold
+
+              leading-none
+
+              tracking-[-0.04em]
+
+              text-[#211d29]
+            "
+          >
+            {value}
+          </span>
+
+          <p className="mt-1.5 text-[9px] text-[#aaa3b2]">
+            {description}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
@@ -1533,18 +2088,27 @@ const SummaryItem = ({
 const TableHeading = ({
   children,
 }: {
-  children: ReactNode;
+  children:
+    ReactNode;
 }) => {
   return (
     <th
       className="
         whitespace-nowrap
-        px-5 py-3.5
+
+        px-5
+        py-3.5
+
         text-left
-        text-[11px]
-        font-semibold
+
+        text-[12px]
+
+        font-bold
+
         uppercase
-        tracking-[0.08em]
+
+        tracking-[0.06em]
+
         text-white
       "
     >
@@ -1560,19 +2124,24 @@ const TableHeading = ({
 const StockStatusBadge = ({
   status,
 }: {
-  status: StockStatus;
+  status:
+    StockStatus;
 }) => {
   const styles =
-    status === "IN_STOCK"
+    status ===
+    "IN_STOCK"
       ? "bg-[#eaf8ef] text-[#39975b]"
-      : status === "LOW"
+      : status ===
+          "LOW"
         ? "bg-[#fff4e9] text-[#df873f]"
         : "bg-[#fff0f2] text-[#df5c6d]";
 
   const dot =
-    status === "IN_STOCK"
+    status ===
+    "IN_STOCK"
       ? "bg-[#4caf6b]"
-      : status === "LOW"
+      : status ===
+          "LOW"
         ? "bg-[#e99a54]"
         : "bg-[#eb6576]";
 
@@ -1580,16 +2149,32 @@ const StockStatusBadge = ({
     <span
       className={`
         inline-flex
+
         items-center
+
         rounded-full
-        px-2.5 py-1
-        text-[11px]
-        font-semibold
+
+        px-2.5
+        py-1
+
+        text-[12px]
+
+        font-bold
+
         ${styles}
       `}
     >
       <span
-        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${dot}`}
+        className={`
+          mr-1.5
+
+          h-1.5
+          w-1.5
+
+          rounded-full
+
+          ${dot}
+        `}
       />
 
       {formatStockStatus(
@@ -1606,19 +2191,24 @@ const StockStatusBadge = ({
 const ProductStatusBadge = ({
   status,
 }: {
-  status: ProductStatus;
+  status:
+    ProductStatus;
 }) => {
   const styles =
-    status === "ACTIVE"
+    status ===
+    "ACTIVE"
       ? "bg-[#eaf8ef] text-[#39975b]"
-      : status === "DRAFT"
+      : status ===
+          "DRAFT"
         ? "bg-[#f2eff5] text-[#77707f]"
         : "bg-[#f3efff] text-[#7661cc]";
 
   const dot =
-    status === "ACTIVE"
+    status ===
+    "ACTIVE"
       ? "bg-[#4caf6b]"
-      : status === "DRAFT"
+      : status ===
+          "DRAFT"
         ? "bg-[#918a99]"
         : "bg-[#8068df]";
 
@@ -1626,16 +2216,32 @@ const ProductStatusBadge = ({
     <span
       className={`
         inline-flex
+
         items-center
+
         rounded-full
-        px-2.5 py-1
-        text-[11px]
-        font-semibold
+
+        px-2.5
+        py-1
+
+        text-[12px]
+
+        font-bold
+
         ${styles}
       `}
     >
       <span
-        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${dot}`}
+        className={`
+          mr-1.5
+
+          h-1.5
+          w-1.5
+
+          rounded-full
+
+          ${dot}
+        `}
       />
 
       {formatProductStatus(
@@ -1656,24 +2262,37 @@ const MobileDetail = ({
   danger = false,
 }: {
   label: string;
+
   value: string;
+
   warning?: boolean;
+
   danger?: boolean;
 }) => {
   return (
     <div>
-      <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-[#aaa3b2]">
+      <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#aaa3b2]">
         {label}
       </p>
 
       <p
-        className={`mt-1 truncate text-xs font-medium ${
-          danger
-            ? "text-[#df5c6d]"
-            : warning
-              ? "text-[#e18642]"
-              : "text-[#554e5e]"
-        }`}
+        className={`
+          mt-1
+
+          truncate
+
+          text-[13px]
+
+          font-bold
+
+          ${
+            danger
+              ? "text-[#df5c6d]"
+              : warning
+                ? "text-[#e18642]"
+                : "text-[#554e5e]"
+          }
+        `}
       >
         {value}
       </p>
@@ -1691,32 +2310,84 @@ const PaginationButton = ({
   disabled = false,
   onClick,
 }: {
-  children: ReactNode;
+  children:
+    ReactNode;
+
   active?: boolean;
+
   disabled?: boolean;
-  onClick?: () => void;
+
+  onClick?:
+    () => void;
 }) => {
   return (
     <button
       type="button"
-      disabled={disabled}
-      onClick={onClick}
+      disabled={
+        disabled
+      }
+      onClick={
+        onClick
+      }
       className={`
-        flex h-8 min-w-8
+        flex
+
+        h-9
+        min-w-9
+
         items-center
         justify-center
+
         rounded-lg
+
+        border
+
         px-2
-        text-xs
-        font-medium
-        transition
+
+        text-[13px]
+
+        font-bold
+
+        transition-all
+        duration-200
+
         disabled:cursor-not-allowed
         disabled:opacity-35
 
         ${
           active
-            ? "bg-[#725aff] text-white shadow-[0_5px_14px_rgba(114,90,255,0.22)]"
-            : "text-[#756e7e] hover:bg-[#f2eeff] hover:text-[#6e59ff]"
+            ? `
+              border-[#7057f5]
+
+              bg-[#7057f5]
+
+              text-white
+
+              shadow-[0_5px_14px_rgba(112,90,255,0.22)]
+            `
+            : `
+              cursor-pointer
+
+              border-[#e6e1ec]
+
+              bg-white
+
+              text-[#696171]
+
+              hover:border-[#7057f5]
+
+              hover:bg-[#f3efff]
+
+              hover:text-[#7057f5]
+
+              active:scale-95
+
+              disabled:hover:border-[#e6e1ec]
+
+              disabled:hover:bg-white
+
+              disabled:hover:text-[#696171]
+            `
         }
       `}
     >

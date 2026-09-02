@@ -3,10 +3,13 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleOff,
+  Eye,
   FolderTree,
-  MoreHorizontal,
   Package,
+  Pencil,
   Plus,
+  Power,
+  PowerOff,
   Search,
   Tag,
 } from "lucide-react";
@@ -24,6 +27,15 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+/* =========================
+   TYPOGRAPHY
+========================= */
+
+const carlitoFont =
+  "font-['Carlito']";
+
+const statsFont =
+  "font-['Poppins']";
 
 /* =========================
    TYPES
@@ -35,29 +47,39 @@ type Category = {
   name: string;
   slug: string;
 
-  description: string | null;
+  description:
+    string | null;
 
   isActive: boolean;
 
   productCount: number;
+
   promotionCount: number;
 
   createdAt: string;
+
   updatedAt: string;
 };
 
 type Pagination = {
   page: number;
+
   limit: number;
+
   total: number;
+
   totalPages: number;
+
   hasNextPage: boolean;
+
   hasPreviousPage: boolean;
 };
 
 type CategoryStats = {
   totalCategories: number;
+
   activeCategories: number;
+
   inactiveCategories: number;
 };
 
@@ -68,7 +90,6 @@ type CategoriesResponse = {
 
   stats: CategoryStats;
 };
-
 
 /* =========================
    HELPERS
@@ -81,12 +102,15 @@ const formatDate = (
     "en-IN",
     {
       day: "2-digit",
+
       month: "short",
+
       year: "numeric",
     }
-  ).format(new Date(value));
+  ).format(
+    new Date(value)
+  );
 };
-
 
 /* =========================
    PAGE
@@ -106,10 +130,15 @@ const Categories = () => {
     setPagination,
   ] = useState<Pagination>({
     page: 1,
+
     limit: 20,
+
     total: 0,
+
     totalPages: 1,
+
     hasNextPage: false,
+
     hasPreviousPage: false,
   });
 
@@ -118,7 +147,9 @@ const Categories = () => {
     setStats,
   ] = useState<CategoryStats>({
     totalCategories: 0,
+
     activeCategories: 0,
+
     inactiveCategories: 0,
   });
 
@@ -148,17 +179,9 @@ const Categories = () => {
   ] = useState("");
 
   const [
-    openActionId,
-    setOpenActionId,
-  ] = useState<
-    string | null
-  >(null);
-
-  const [
     refreshKey,
     setRefreshKey,
   ] = useState(0);
-
 
   /* =========================
      SEARCH
@@ -182,7 +205,6 @@ const Categories = () => {
     };
   }, [search]);
 
-
   /* =========================
      FETCH
   ========================= */
@@ -192,6 +214,7 @@ const Categories = () => {
       async () => {
         try {
           setLoading(true);
+
           setError("");
 
           const params =
@@ -225,7 +248,8 @@ const Categories = () => {
             await fetch(
               `http://localhost:5000/api/admin/categories?${params.toString()}`,
               {
-                method: "GET",
+                method:
+                  "GET",
 
                 credentials:
                   "include",
@@ -238,7 +262,9 @@ const Categories = () => {
             } =
             await response.json();
 
-          if (!response.ok) {
+          if (
+            !response.ok
+          ) {
             throw new Error(
               data.message ||
                 "Unable to load categories."
@@ -247,10 +273,13 @@ const Categories = () => {
 
           if (
             pagination.page >
-            data.pagination.totalPages
+            data.pagination
+              .totalPages
           ) {
             setPagination(
-              (current) => ({
+              (
+                current
+              ) => ({
                 ...current,
 
                 page:
@@ -263,7 +292,8 @@ const Categories = () => {
           }
 
           setCategories(
-            data.categories ?? []
+            data.categories ??
+              []
           );
 
           setPagination(
@@ -273,7 +303,9 @@ const Categories = () => {
           setStats(
             data.stats
           );
-        } catch (error) {
+        } catch (
+          error
+        ) {
           setError(
             error instanceof Error
               ? error.message
@@ -287,12 +319,15 @@ const Categories = () => {
     void loadCategories();
   }, [
     pagination.page,
+
     pagination.limit,
+
     debouncedSearch,
+
     status,
+
     refreshKey,
   ]);
-
 
   /* =========================
      PAGINATION
@@ -305,29 +340,38 @@ const Categories = () => {
       page < 1 ||
       page >
         pagination.totalPages ||
-      page === pagination.page
+      page ===
+        pagination.page
     ) {
       return;
     }
 
     setPagination(
-      (current) => ({
+      (
+        current
+      ) => ({
         ...current,
+
         page,
       })
     );
 
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+
+      behavior:
+        "smooth",
     });
   };
 
   const resetFilterPage =
     () => {
       setPagination(
-        (current) => ({
+        (
+          current
+        ) => ({
           ...current,
+
           page: 1,
         })
       );
@@ -336,7 +380,8 @@ const Categories = () => {
   const startItem =
     pagination.total === 0
       ? 0
-      : (pagination.page - 1) *
+      : (pagination.page -
+            1) *
           pagination.limit +
         1;
 
@@ -344,9 +389,9 @@ const Categories = () => {
     Math.min(
       pagination.page *
         pagination.limit,
+
       pagination.total
     );
-
 
   /* =========================
      STATUS UPDATE
@@ -354,15 +399,20 @@ const Categories = () => {
 
   const updateStatus =
     async (
-      category: Category,
-      isActive: boolean
+      category:
+        Category,
+
+      isActive:
+        boolean
     ) => {
       const csrfToken =
         sessionStorage.getItem(
           "admin_csrf_token"
         );
 
-      if (!csrfToken) {
+      if (
+        !csrfToken
+      ) {
         setError(
           "Your admin session is missing the security token. Please sign in again."
         );
@@ -377,7 +427,8 @@ const Categories = () => {
           await fetch(
             `http://localhost:5000/api/admin/categories/${category.id}/status`,
             {
-              method: "PATCH",
+              method:
+                "PATCH",
 
               credentials:
                 "include",
@@ -400,20 +451,25 @@ const Categories = () => {
         const data =
           await response.json();
 
-        if (!response.ok) {
+        if (
+          !response.ok
+        ) {
           throw new Error(
             data.message ||
               "Unable to update category status."
           );
         }
 
-        setOpenActionId(null);
-
         setRefreshKey(
-          (current) =>
-            current + 1
+          (
+            current
+          ) =>
+            current +
+            1
         );
-      } catch (error) {
+      } catch (
+        error
+      ) {
         setError(
           error instanceof Error
             ? error.message
@@ -422,266 +478,489 @@ const Categories = () => {
       }
     };
 
-
   /* =========================
      UI
   ========================= */
 
   return (
-    <div className="w-full pb-10 font-sans">
-      {/* HEADER */}
-
-      <div
-        className="
-          mb-6 flex flex-col gap-4
-          rounded-[20px]
-          border border-[#e6def8]
-          bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
-          p-5
-          sm:flex-row
-          sm:items-center
-          sm:justify-between
-        "
-      >
-        <div>
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8368e0]">
-            Catalog
-          </p>
-
-          <h1 className="text-[25px] font-semibold tracking-[-0.03em] text-[#211d29]">
-            Categories
-          </h1>
-
-          <p className="mt-1 text-[12px] text-[#8f8798]">
-            Manage piercing and stud placement categories.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            navigate(
-              "/admin/categories/new"
-            )
-          }
-          className="
-            inline-flex h-11
-            shrink-0 items-center
-            justify-center gap-2
-            rounded-xl
-            bg-[linear-gradient(135deg,#6e59ff,#8c63f5)]
-            px-5
-            text-sm font-medium
-            text-white
-            shadow-[0_10px_26px_rgba(110,89,255,0.22)]
-            transition-all
-            duration-200
-            hover:-translate-y-0.5
-            hover:shadow-[0_14px_30px_rgba(110,89,255,0.28)]
-            active:translate-y-0
-          "
-        >
-          <Plus
-            size={18}
-            strokeWidth={2.2}
-          />
-
-          <span className="hidden sm:inline">
-            Add Category
-          </span>
-
-          <span className="sm:hidden">
-            Add
-          </span>
-        </button>
-      </div>
-
-
-      {/* ERROR */}
+    <div className="w-full pb-10">
+      {/* =========================
+          ERROR
+      ========================== */}
 
       {error && (
-        <div className="mb-5 rounded-xl border border-[#f3ccd3] bg-[#fff4f5] px-4 py-3 text-[12px] font-medium text-[#d95c70]">
+        <div
+          className={`
+            ${carlitoFont}
+
+            mb-5
+
+            rounded-xl
+
+            border
+            border-[#f3ccd3]
+
+            bg-[#fff4f5]
+
+            px-4
+            py-3
+
+            text-[13px]
+
+            font-bold
+
+            text-[#d95c70]
+          `}
+        >
           {error}
         </div>
       )}
 
-
-      {/* PANEL */}
+      {/* =========================
+          MAIN PANEL
+      ========================== */}
 
       <section
         className="
           overflow-visible
+
           rounded-[20px]
-          border border-[#e9e5ef]
-          bg-white
+
+          border
+          border-[#e6def8]
+
+          bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
+
           shadow-[0_8px_30px_rgba(53,42,78,0.035)]
         "
       >
-        {/* TOOLBAR */}
+        {/* =========================
+            TOOLBAR
+        ========================== */}
 
         <div
           className="
-            flex flex-col gap-3
-            border-b border-[#eeeaf3]
+            flex
+            flex-col
+
+            gap-3
+
+            border-b
+            border-[#e4dcf2]
+
             p-4
+
             sm:flex-row
+
             sm:items-center
+
             sm:justify-between
           "
         >
+          {/* SEARCH */}
+
           <div className="relative w-full sm:max-w-[360px]">
             <Search
               size={17}
+
               strokeWidth={2}
+
               className="
                 pointer-events-none
-                absolute left-3.5
+
+                absolute
+
+                left-3.5
+
                 top-1/2
+
                 -translate-y-1/2
+
                 text-[#aaa3b4]
               "
             />
 
             <input
               type="text"
-              value={search}
-              onChange={(event) => {
+
+              value={
+                search
+              }
+
+              onChange={(
+                event
+              ) => {
                 setSearch(
-                  event.target.value
+                  event.target
+                    .value
                 );
 
                 resetFilterPage();
               }}
+
               placeholder="Search category..."
-              className="
-                h-11 w-full
+
+              className={`
+                ${carlitoFont}
+
+                h-11
+
+                w-full
+
                 rounded-xl
-                border border-[#e8e3ee]
-                bg-[#fbfaff]
-                pl-10 pr-4
-                text-sm text-[#2a2531]
+
+                border
+                border-[#e8e3ee]
+
+                bg-white
+
+                pl-10
+
+                pr-4
+
+                text-[15px]
+
+                text-[#2a2531]
+
                 outline-none
-                transition
+
+                transition-all
+                duration-200
+
                 placeholder:text-[#aaa4b3]
-                focus:border-[#a997ff]
+
+                hover:border-[#9d88f7]
+
+                hover:bg-[#faf8ff]
+
+                focus:border-[#7057f5]
+
                 focus:bg-white
+
                 focus:ring-4
-                focus:ring-[#735cff]/[0.07]
-              "
+
+                focus:ring-[#7057f5]/10
+              `}
             />
           </div>
 
-          <SelectFilter
-            value={status}
-            onChange={(value) => {
-              setStatus(value);
-              resetFilterPage();
-            }}
-            label="Status"
-            options={[
-              {
-                value: "ACTIVE",
-                label: "Active",
-              },
-              {
-                value: "INACTIVE",
-                label: "Inactive",
-              },
-            ]}
-          />
+          {/* FILTER + ADD */}
+
+          <div className="flex items-center gap-2">
+            <SelectFilter
+              value={
+                status
+              }
+
+              onChange={(
+                value
+              ) => {
+                setStatus(
+                  value
+                );
+
+                resetFilterPage();
+              }}
+
+              label="Status"
+
+              options={[
+                {
+                  value:
+                    "ACTIVE",
+
+                  label:
+                    "Active",
+                },
+
+                {
+                  value:
+                    "INACTIVE",
+
+                  label:
+                    "Inactive",
+                },
+              ]}
+            />
+
+            <button
+              type="button"
+
+              onClick={() =>
+                navigate(
+                  "/admin/categories/new"
+                )
+              }
+
+              className={`
+                ${carlitoFont}
+
+                inline-flex
+
+                h-11
+
+                shrink-0
+
+                cursor-pointer
+
+                items-center
+
+                justify-center
+
+                gap-2
+
+                rounded-xl
+
+                border
+                border-[#7057F5]
+
+                bg-[#7057F5]
+
+                px-5
+
+                text-[15px]
+
+                font-bold
+
+                text-white
+
+                shadow-[0_8px_20px_rgba(112,87,245,0.20)]
+
+                transition-all
+                duration-200
+
+                hover:-translate-y-[2px]
+
+                hover:border-[#5f47e8]
+
+                hover:bg-[#5f47e8]
+
+                hover:shadow-[0_12px_26px_rgba(112,87,245,0.30)]
+
+                active:translate-y-0
+
+                active:scale-[0.98]
+              `}
+            >
+              <Plus
+                size={18}
+
+                strokeWidth={2}
+              />
+
+              <span className="hidden sm:inline">
+                Add Category
+              </span>
+
+              <span className="sm:hidden">
+                Add
+              </span>
+            </button>
+          </div>
         </div>
 
+        {/* =========================
+            STATS
+        ========================== */}
 
-        {/* STATS */}
+        <div className="bg-[#f3efff] px-4 py-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <SummaryItem
+              icon={
+                <FolderTree
+                  size={17}
+                />
+              }
 
-        <div className="grid grid-cols-1 gap-3 border-b border-[#eeeaf3] bg-[#faf8ff] p-4 sm:grid-cols-3">
-          <SummaryItem
-            icon={
-              <FolderTree
-                size={16}
-              />
-            }
-            label="Categories"
-            value={String(
-              stats.totalCategories
-            )}
-          />
+              label="Total Categories"
 
-          <SummaryItem
-            icon={
-              <Tag
-                size={16}
-              />
-            }
-            label="Active"
-            value={String(
-              stats.activeCategories
-            )}
-          />
+              value={String(
+                stats.totalCategories
+              )}
 
-          <SummaryItem
-            icon={
-              <CircleOff
-                size={16}
-              />
-            }
-            label="Inactive"
-            value={String(
-              stats.inactiveCategories
-            )}
-          />
+              description="All catalog categories"
+
+              tone="violet"
+
+              badge="ALL"
+            />
+
+            <SummaryItem
+              icon={
+                <Tag
+                  size={17}
+                />
+              }
+
+              label="Active Categories"
+
+              value={String(
+                stats.activeCategories
+              )}
+
+              description="Visible and available"
+
+              tone="green"
+
+              badge="LIVE"
+            />
+
+            <SummaryItem
+              icon={
+                <CircleOff
+                  size={17}
+                />
+              }
+
+              label="Inactive Categories"
+
+              value={String(
+                stats.inactiveCategories
+              )}
+
+              description="Currently disabled"
+
+              tone="slate"
+
+              badge="OFF"
+            />
+          </div>
         </div>
 
-
-        {/* LOADING */}
+        {/* =========================
+            LOADING
+        ========================== */}
 
         {loading && (
           <div className="flex min-h-[320px] items-center justify-center">
             <div className="text-center">
               <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#ded5f8] border-t-[#725aff]" />
 
-              <p className="mt-3 text-[12px] text-[#91899a]">
+              <p
+                className={`
+                  ${carlitoFont}
+
+                  mt-3
+
+                  text-[13px]
+
+                  text-[#91899a]
+                `}
+              >
                 Loading categories...
               </p>
             </div>
           </div>
         )}
 
-
-        {/* EMPTY */}
+        {/* =========================
+            EMPTY
+        ========================== */}
 
         {!loading &&
           categories.length ===
             0 && (
-            <div className="flex min-h-[320px] flex-col items-center justify-center px-5 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eee9ff] text-[#725aff]">
+            <div
+              className={`
+                ${carlitoFont}
+
+                flex
+
+                min-h-[320px]
+
+                flex-col
+
+                items-center
+
+                justify-center
+
+                px-5
+
+                text-center
+              `}
+            >
+              <div
+                className="
+                  flex
+
+                  h-14
+                  w-14
+
+                  items-center
+
+                  justify-center
+
+                  rounded-2xl
+
+                  bg-white
+
+                  text-[#725aff]
+
+                  shadow-[0_6px_18px_rgba(112,87,245,0.10)]
+                "
+              >
                 <FolderTree
                   size={24}
                 />
               </div>
 
-              <h3 className="mt-4 text-[14px] font-semibold text-[#332d3b]">
-                {search || status
+              <h3 className="mt-4 text-[15px] font-bold text-[#332d3b]">
+                {search ||
+                status
                   ? "No categories found"
                   : "No categories yet"}
               </h3>
 
-              <p className="mt-1 max-w-[340px] text-[11px] leading-5 text-[#9a92a2]">
-                {search || status
-                  ? "Try changing your search or filter."
-                  : "Create your first category to organize products by placement."}
+              <p className="mt-1 max-w-[340px] text-[12px] leading-5 text-[#9a92a2]">
+                {search ||
+                status
+                  ? "Try changing your search or status filter."
+                  : "Create your first category to organize products."}
               </p>
 
               {!search &&
                 !status && (
                   <button
                     type="button"
+
                     onClick={() =>
                       navigate(
                         "/admin/categories/new"
                       )
                     }
-                    className="mt-4 inline-flex h-9 items-center gap-2 rounded-xl bg-[#eee6ff] px-4 text-[12px] font-semibold text-[#6750d4]"
+
+                    className="
+                      mt-4
+
+                      inline-flex
+
+                      h-9
+
+                      cursor-pointer
+
+                      items-center
+
+                      gap-2
+
+                      rounded-xl
+
+                      bg-[#7057f5]
+
+                      px-4
+
+                      text-[13px]
+
+                      font-bold
+
+                      text-white
+
+                      transition-all
+                      duration-200
+
+                      hover:-translate-y-[1px]
+
+                      hover:bg-[#5f47e8]
+                    "
                   >
                     <Plus
                       size={14}
@@ -693,212 +972,287 @@ const Categories = () => {
             </div>
           )}
 
-
-        {/* DESKTOP TABLE */}
+        {/* =========================
+            DESKTOP TABLE
+        ========================== */}
 
         {!loading &&
           categories.length >
             0 && (
-            <div className="hidden overflow-x-auto lg:block">
-              <table className="w-full min-w-[950px] border-collapse">
-                <thead>
-                  <tr className="bg-[linear-gradient(135deg,#7c5cfa_0%,#6c4cf0_100%)]">
-                    <TableHeading>
-                      Category
-                    </TableHeading>
+            <div className="hidden px-4 pb-4 lg:block">
+              <div
+                className="
+                  overflow-hidden
 
-                    <TableHeading>
-                      Slug
-                    </TableHeading>
+                  rounded-[18px]
 
-                    <TableHeading>
-                      Products
-                    </TableHeading>
+                  border
+                  border-[#e5def3]
 
-                    <TableHeading>
-                      Promotions
-                    </TableHeading>
+                  bg-white
 
-                    <TableHeading>
-                      Updated
-                    </TableHeading>
+                  shadow-[0_8px_24px_rgba(64,48,105,0.06)]
+                "
+              >
+                <div className="overflow-x-auto">
+                  <table
+                    className={`
+                      ${carlitoFont}
 
-                    <TableHeading>
-                      Status
-                    </TableHeading>
+                      w-full
 
-                    <th className="w-[64px] px-4 py-3.5" />
-                  </tr>
-                </thead>
+                      min-w-[1050px]
 
-                <tbody className="divide-y divide-[#f0edf3]">
-                  {categories.map(
-                    (category) => (
-                      <tr
-                        key={
-                          category.id
-                        }
-                        className="
-                          group
-                          transition-colors
-                          duration-150
-                          hover:bg-[#fcfbff]
-                        "
-                      >
-                        <td className="px-5 py-4">
-                          <div className="min-w-[200px]">
-                            <p className="max-w-[260px] truncate text-sm font-semibold text-[#292430]">
-                              {
-                                category.name
-                              }
-                            </p>
+                      border-collapse
+                    `}
+                  >
+                    <thead>
+                      <tr className="bg-[linear-gradient(135deg,#7c5cfa_0%,#6c4cf0_100%)]">
+                        <TableHeading>
+                          Category
+                        </TableHeading>
 
-                            <p className="mt-1 max-w-[280px] truncate text-xs text-[#aaa3b2]">
-                              {category.description ||
-                                "No description"}
-                            </p>
-                          </div>
-                        </td>
+                        <TableHeading>
+                          Slug
+                        </TableHeading>
 
-                        <td className="px-5 py-4">
-                          <span className="inline-flex rounded-lg bg-[#f7f5fa] px-2.5 py-1.5 text-xs font-medium text-[#706879]">
-                            {
-                              category.slug
-                            }
-                          </span>
-                        </td>
+                        <TableHeading>
+                          Products
+                        </TableHeading>
 
-                        <td className="px-5 py-4">
-                          <CountValue
-                            icon={
-                              <Package
-                                size={14}
-                              />
-                            }
-                            value={
-                              category.productCount
-                            }
-                          />
-                        </td>
+                        <TableHeading>
+                          Promotions
+                        </TableHeading>
 
-                        <td className="px-5 py-4">
-                          <span className="text-sm font-medium text-[#625b6c]">
-                            {
-                              category.promotionCount
-                            }
-                          </span>
-                        </td>
+                        <TableHeading>
+                          Updated
+                        </TableHeading>
 
-                        <td className="px-5 py-4">
-                          <span className="text-xs text-[#777080]">
-                            {formatDate(
-                              category.updatedAt
-                            )}
-                          </span>
-                        </td>
+                        <TableHeading>
+                          Status
+                        </TableHeading>
 
-                        <td className="px-5 py-4">
-                          <CategoryStatusBadge
-                            isActive={
-                              category.isActive
-                            }
-                          />
-                        </td>
+                        <TableHeading>
+                          Actions
+                        </TableHeading>
+                      </tr>
+                    </thead>
 
-                        <td className="px-4 py-4">
-                          <CategoryActions
-                            category={
-                              category
-                            }
-                            open={
-                              openActionId ===
+                    <tbody className="divide-y divide-[#f0edf3] bg-white">
+                      {categories.map(
+                        (
+                          category
+                        ) => (
+                          <tr
+                            key={
                               category.id
                             }
-                            onToggle={() =>
-                              setOpenActionId(
-                                (
-                                  current
-                                ) =>
-                                  current ===
-                                  category.id
-                                    ? null
-                                    : category.id
-                              )
-                            }
-                            onView={() => {
-                              setOpenActionId(
-                                null
-                              );
 
-                              navigate(
-                                `/admin/categories/${category.id}/view`
-                              );
-                            }}
-                            onEdit={() => {
-                              setOpenActionId(
-                                null
-                              );
+                            className="
+                              group
 
-                              navigate(
-                                `/admin/categories/${category.id}/edit`
-                              );
-                            }}
-                            onStatusChange={(
-                              nextActive
-                            ) => {
-                              const confirmed =
-                                window.confirm(
+                              bg-white
+
+                              transition-colors
+                              duration-150
+
+                              hover:bg-[#f8f5ff]
+                            "
+                          >
+                            {/* CATEGORY */}
+
+                            <td className="px-5 py-4">
+                              <div className="min-w-[200px]">
+                                <p className="max-w-[260px] truncate text-[15px] font-bold text-[#292430]">
+                                  {
+                                    category.name
+                                  }
+                                </p>
+
+                                <p className="mt-1 max-w-[280px] truncate text-[13px] text-[#aaa3b2]">
+                                  {category.description ||
+                                    "No description"}
+                                </p>
+                              </div>
+                            </td>
+
+                            {/* SLUG */}
+
+                            <td className="px-5 py-4">
+                              <span
+                                className="
+                                  inline-flex
+
+                                  rounded-lg
+
+                                  bg-[#f3efff]
+
+                                  px-2.5
+                                  py-1.5
+
+                                  text-[13px]
+
+                                  font-bold
+
+                                  text-[#7058df]
+                                "
+                              >
+                                /
+                                {
+                                  category.slug
+                                }
+                              </span>
+                            </td>
+
+                            {/* PRODUCTS */}
+
+                            <td className="px-5 py-4">
+                              <CountValue
+                                icon={
+                                  <Package
+                                    size={14}
+                                  />
+                                }
+
+                                value={
+                                  category.productCount
+                                }
+                              />
+                            </td>
+
+                            {/* PROMOTIONS */}
+
+                            <td className="px-5 py-4">
+                              <span className="text-[15px] font-bold text-[#625b6c]">
+                                {
+                                  category.promotionCount
+                                }
+                              </span>
+                            </td>
+
+                            {/* UPDATED */}
+
+                            <td className="px-5 py-4">
+                              <span className="whitespace-nowrap text-[13px] text-[#777080]">
+                                {formatDate(
+                                  category.updatedAt
+                                )}
+                              </span>
+                            </td>
+
+                            {/* STATUS */}
+
+                            <td className="px-5 py-4">
+                              <CategoryStatusBadge
+                                isActive={
+                                  category.isActive
+                                }
+                              />
+                            </td>
+
+                            {/* ACTIONS */}
+
+                            <td className="px-5 py-4">
+                              <CategoryActions
+                                category={
+                                  category
+                                }
+
+                                onView={() =>
+                                  navigate(
+                                    `/admin/categories/${category.id}/view`
+                                  )
+                                }
+
+                                onEdit={() =>
+                                  navigate(
+                                    `/admin/categories/${category.id}/edit`
+                                  )
+                                }
+
+                                onStatusChange={(
                                   nextActive
-                                    ? `Enable "${category.name}"?`
-                                    : `Disable "${category.name}"?`
-                                );
+                                ) => {
+                                  const confirmed =
+                                    window.confirm(
+                                      nextActive
+                                        ? `Enable "${category.name}"?`
+                                        : `Disable "${category.name}"?`
+                                    );
 
-                              if (
-                                !confirmed
-                              ) {
-                                return;
-                              }
+                                  if (
+                                    !confirmed
+                                  ) {
+                                    return;
+                                  }
 
-                              void updateStatus(
-                                category,
-                                nextActive
-                              );
-                            }}
-                          />
-                        </td>
-                      </tr>
-                    )
-                  )}
-                </tbody>
-              </table>
+                                  void updateStatus(
+                                    category,
+
+                                    nextActive
+                                  );
+                                }}
+                              />
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
-
-        {/* MOBILE */}
+        {/* =========================
+            MOBILE
+        ========================== */}
 
         {!loading &&
           categories.length >
             0 && (
-            <div className="divide-y divide-[#eeeaf3] lg:hidden">
+            <div
+              className={`
+                ${carlitoFont}
+
+                divide-y
+
+                divide-[#e6def0]
+
+                lg:hidden
+              `}
+            >
               {categories.map(
-                (category) => (
+                (
+                  category
+                ) => (
                   <div
                     key={
                       category.id
                     }
-                    className="p-4 transition-colors hover:bg-[#fcfbff]"
+
+                    className="
+                      bg-white/60
+
+                      p-4
+
+                      transition-colors
+                      duration-200
+
+                      hover:bg-white
+                    "
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-[#292430]">
+                        <p className="truncate text-[15px] font-bold text-[#292430]">
                           {
                             category.name
                           }
                         </p>
 
-                        <p className="mt-1 truncate text-xs text-[#a29aaa]">
-                          /{
+                        <p className="mt-1 truncate text-[13px] text-[#a29aaa]">
+                          /
+                          {
                             category.slug
                           }
                         </p>
@@ -908,39 +1262,19 @@ const Categories = () => {
                         category={
                           category
                         }
-                        open={
-                          openActionId ===
-                          category.id
-                        }
-                        onToggle={() =>
-                          setOpenActionId(
-                            (
-                              current
-                            ) =>
-                              current ===
-                              category.id
-                                ? null
-                                : category.id
-                          )
-                        }
-                        onView={() => {
-                          setOpenActionId(
-                            null
-                          );
 
+                        onView={() =>
                           navigate(
                             `/admin/categories/${category.id}/view`
-                          );
-                        }}
-                        onEdit={() => {
-                          setOpenActionId(
-                            null
-                          );
+                          )
+                        }
 
+                        onEdit={() =>
                           navigate(
                             `/admin/categories/${category.id}/edit`
-                          );
-                        }}
+                          )
+                        }
+
                         onStatusChange={(
                           nextActive
                         ) => {
@@ -959,6 +1293,7 @@ const Categories = () => {
 
                           void updateStatus(
                             category,
+
                             nextActive
                           );
                         }}
@@ -976,6 +1311,7 @@ const Categories = () => {
                     <div className="mt-4 grid grid-cols-2 gap-3">
                       <MobileDetail
                         label="Products"
+
                         value={String(
                           category.productCount
                         )}
@@ -983,6 +1319,7 @@ const Categories = () => {
 
                       <MobileDetail
                         label="Promotions"
+
                         value={String(
                           category.promotionCount
                         )}
@@ -990,15 +1327,16 @@ const Categories = () => {
                     </div>
 
                     {category.description && (
-                      <p className="mt-4 line-clamp-2 border-t border-[#f0edf3] pt-3 text-xs leading-5 text-[#777080]">
+                      <p className="mt-4 line-clamp-2 border-t border-[#f0edf3] pt-3 text-[13px] leading-5 text-[#777080]">
                         {
                           category.description
                         }
                       </p>
                     )}
 
-                    <p className="mt-3 text-[11px] text-[#aaa3b2]">
+                    <p className="mt-3 text-[12px] text-[#aaa3b2]">
                       Updated{" "}
+
                       {formatDate(
                         category.updatedAt
                       )}
@@ -1009,21 +1347,53 @@ const Categories = () => {
             </div>
           )}
 
-
-        {/* PAGINATION */}
+        {/* =========================
+            PAGINATION
+        ========================== */}
 
         {!loading &&
           pagination.total >
             0 && (
-            <div className="flex flex-col gap-3 border-t border-[#eeeaf3] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-              <p className="text-xs text-[#9991a2]">
+            <div
+              className={`
+                ${carlitoFont}
+
+                flex
+                flex-col
+
+                gap-3
+
+                border-t
+                border-[#e6def0]
+
+                px-4
+                py-4
+
+                sm:flex-row
+
+                sm:items-center
+
+                sm:justify-between
+
+                sm:px-5
+              `}
+            >
+              <p className="text-[13px] text-[#9991a2]">
                 Showing{" "}
-                <span className="font-medium text-[#5e5768]">
-                  {startItem}–
-                  {endItem}
+
+                <span className="font-bold text-[#5e5768]">
+                  {
+                    startItem
+                  }
+                  –
+                  {
+                    endItem
+                  }
                 </span>{" "}
+
                 of{" "}
-                <span className="font-medium text-[#5e5768]">
+
+                <span className="font-bold text-[#5e5768]">
                   {
                     pagination.total
                   }{" "}
@@ -1036,6 +1406,7 @@ const Categories = () => {
                   disabled={
                     !pagination.hasPreviousPage
                   }
+
                   onClick={() =>
                     goToPage(
                       pagination.page -
@@ -1053,36 +1424,51 @@ const Categories = () => {
                     length:
                       pagination.totalPages,
                   },
-                  (_, index) =>
+
+                  (
+                    _,
+                    index
+                  ) =>
                     index + 1
                 )
                   .slice(
                     Math.max(
                       0,
+
                       pagination.page -
                         3
                     ),
+
                     Math.min(
                       pagination.totalPages,
+
                       pagination.page +
                         2
                     )
                   )
                   .map(
-                    (page) => (
+                    (
+                      page
+                    ) => (
                       <PaginationButton
-                        key={page}
+                        key={
+                          page
+                        }
+
                         active={
                           page ===
                           pagination.page
                         }
+
                         onClick={() =>
                           goToPage(
                             page
                           )
                         }
                       >
-                        {page}
+                        {
+                          page
+                        }
                       </PaginationButton>
                     )
                   )}
@@ -1091,6 +1477,7 @@ const Categories = () => {
                   disabled={
                     !pagination.hasNextPage
                   }
+
                   onClick={() =>
                     goToPage(
                       pagination.page +
@@ -1110,15 +1497,17 @@ const Categories = () => {
   );
 };
 
-
 /* =========================
    SELECT FILTER
 ========================= */
 
 const SelectFilter = ({
   value,
+
   onChange,
+
   label,
+
   options,
 }: {
   value: string;
@@ -1131,45 +1520,82 @@ const SelectFilter = ({
 
   options: {
     value: string;
+
     label: string;
   }[];
 }) => {
   return (
     <div className="relative shrink-0">
       <select
-        value={value}
-        onChange={(event) =>
+        value={
+          value
+        }
+
+        onChange={(
+          event
+        ) =>
           onChange(
-            event.target.value
+            event.target
+              .value
           )
         }
-        className="
-          h-11 appearance-none
+
+        className={`
+          ${carlitoFont}
+
+          h-11
+
+          cursor-pointer
+
+          appearance-none
+
           rounded-xl
-          border border-[#e8e3ee]
+
+          border
+          border-[#e8e3ee]
+
           bg-white
-          pl-4 pr-9
-          text-sm font-medium
+
+          pl-4
+          pr-9
+
+          text-[15px]
+
           text-[#655e6f]
+
           outline-none
-          transition
-          hover:border-[#d8d0e5]
+
+          transition-all
+          duration-200
+
+          hover:border-[#9d88f7]
+
           hover:bg-[#faf8ff]
-          focus:border-[#a997ff]
+
+          hover:text-[#7057f5]
+
+          hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+
+          focus:border-[#7057f5]
+
           focus:ring-4
-          focus:ring-[#735cff]/[0.07]
-        "
+
+          focus:ring-[#7057f5]/10
+        `}
       >
         <option value="">
           {label}
         </option>
 
         {options.map(
-          (option) => (
+          (
+            option
+          ) => (
             <option
               key={
                 option.value
               }
+
               value={
                 option.value
               }
@@ -1184,11 +1610,18 @@ const SelectFilter = ({
 
       <ChevronDown
         size={15}
+
         className="
           pointer-events-none
-          absolute right-3
+
+          absolute
+
+          right-3
+
           top-1/2
+
           -translate-y-1/2
+
           text-[#aaa3b2]
         "
       />
@@ -1196,52 +1629,245 @@ const SelectFilter = ({
   );
 };
 
-
 /* =========================
    SUMMARY
 ========================= */
 
+type SummaryTone =
+  | "violet"
+  | "green"
+  | "slate";
+
 const SummaryItem = ({
   icon,
+
   label,
+
   value,
+
+  description,
+
+  tone = "violet",
+
+  badge,
 }: {
-  icon?: ReactNode;
+  icon: ReactNode;
 
   label: string;
 
   value: string;
+
+  description: string;
+
+  tone?: SummaryTone;
+
+  badge: string;
 }) => {
+  const tones: Record<
+    SummaryTone,
+    {
+      icon: string;
+
+      accent: string;
+
+      badge: string;
+    }
+  > = {
+    violet: {
+      icon:
+        "bg-[#eee9ff] text-[#7057f5]",
+
+      accent:
+        "bg-[#7057f5]",
+
+      badge:
+        "bg-[#eee9ff] text-[#7057f5]",
+    },
+
+    green: {
+      icon:
+        "bg-[#e9f9f1] text-[#3eaa79]",
+
+      accent:
+        "bg-[#49c68e]",
+
+      badge:
+        "bg-[#e9f9f1] text-[#39986d]",
+    },
+
+    slate: {
+      icon:
+        "bg-[#f0eef4] text-[#777080]",
+
+      accent:
+        "bg-[#aaa3b3]",
+
+      badge:
+        "bg-[#f0eef4] text-[#777080]",
+    },
+  };
+
+  const currentTone =
+    tones[tone];
+
   return (
     <div
-      className="
-        relative overflow-hidden
-        rounded-2xl
-        border border-[#e9e2fb]
-        bg-[linear-gradient(135deg,#ffffff,#f5f1ff)]
-        p-4
-        shadow-[0_8px_22px_rgba(76,60,120,0.06)]
-      "
-    >
-      <div className="absolute -right-5 -top-5 h-16 w-16 rounded-full bg-[#8a70ff]/10" />
+      className={`
+        ${statsFont}
 
-      <div className="relative z-10 flex items-center justify-between">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eee9ff] text-[#6e59ff]">
-          {icon}
+        group
+
+        relative
+
+        min-h-[118px]
+
+        overflow-hidden
+
+        rounded-[18px]
+
+        border
+        border-white/80
+
+        bg-white
+
+        p-4
+
+        shadow-[0_8px_24px_rgba(79,61,126,0.08)]
+
+        transition-all
+        duration-200
+
+        hover:-translate-y-0.5
+
+        hover:shadow-[0_12px_30px_rgba(79,61,126,0.12)]
+      `}
+    >
+      {/* RIGHT ACCENT */}
+
+      <div
+        className={`
+          absolute
+
+          -right-[34px]
+
+          top-1/2
+
+          h-[76px]
+
+          w-[76px]
+
+          -translate-y-1/2
+
+          rounded-full
+
+          opacity-90
+
+          ${currentTone.accent}
+        `}
+      />
+
+      {/* SOFT GLOW */}
+
+      <div
+        className={`
+          absolute
+
+          -right-[15px]
+
+          top-1/2
+
+          h-[86px]
+
+          w-[86px]
+
+          -translate-y-1/2
+
+          rounded-full
+
+          opacity-[0.08]
+
+          blur-xl
+
+          ${currentTone.accent}
+        `}
+      />
+
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div
+            className={`
+              flex
+
+              h-9
+
+              w-9
+
+              items-center
+
+              justify-center
+
+              rounded-xl
+
+              ${currentTone.icon}
+            `}
+          >
+            {icon}
+          </div>
+
+          <span
+            className={`
+              mr-3
+
+              rounded-full
+
+              px-2
+
+              py-1
+
+              text-[9px]
+
+              font-semibold
+
+              ${currentTone.badge}
+            `}
+          >
+            {badge}
+          </span>
         </div>
 
-        <span className="text-lg font-semibold text-[#292430]">
-          {value}
-        </span>
-      </div>
+        <div className="mt-3">
+          <p className="text-[10px] font-medium text-[#91899c]">
+            {label}
+          </p>
 
-      <p className="relative z-10 mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-[#958da0]">
-        {label}
-      </p>
+          <span
+            className="
+              mt-0.5
+
+              block
+
+              text-[22px]
+
+              font-semibold
+
+              leading-none
+
+              tracking-[-0.04em]
+
+              text-[#211d29]
+            "
+          >
+            {value}
+          </span>
+
+          <p className="mt-1.5 text-[9px] text-[#aaa3b2]">
+            {description}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
-
 
 /* =========================
    TABLE HEADING
@@ -1250,18 +1876,28 @@ const SummaryItem = ({
 const TableHeading = ({
   children,
 }: {
-  children: ReactNode;
+  children:
+    ReactNode;
 }) => {
   return (
     <th
       className="
         whitespace-nowrap
-        px-5 py-3.5
+
+        px-5
+
+        py-3.5
+
         text-left
-        text-[11px]
-        font-semibold
+
+        text-[12px]
+
+        font-bold
+
         uppercase
-        tracking-[0.08em]
+
+        tracking-[0.06em]
+
         text-white
       "
     >
@@ -1270,52 +1906,65 @@ const TableHeading = ({
   );
 };
 
-
 /* =========================
    STATUS
 ========================= */
 
-const CategoryStatusBadge = ({
-  isActive,
-}: {
-  isActive: boolean;
-}) => {
-  return (
-    <span
-      className={`
-        inline-flex
-        items-center
-        rounded-full
-        px-2.5 py-1
-        text-[11px]
-        font-semibold
-        ${
-          isActive
-            ? "bg-[#eaf8ef] text-[#39975b]"
-            : "bg-[#f2eff5] text-[#77707f]"
-        }
-      `}
-    >
+const CategoryStatusBadge =
+  ({
+    isActive,
+  }: {
+    isActive:
+      boolean;
+  }) => {
+    return (
       <span
         className={`
-          mr-1.5
-          h-1.5 w-1.5
+          inline-flex
+
+          items-center
+
           rounded-full
+
+          px-2.5
+
+          py-1
+
+          text-[12px]
+
+          font-bold
+
           ${
             isActive
-              ? "bg-[#4caf6b]"
-              : "bg-[#918a99]"
+              ? "bg-[#eaf8ef] text-[#39975b]"
+              : "bg-[#f2eff5] text-[#77707f]"
           }
         `}
-      />
+      >
+        <span
+          className={`
+            mr-1.5
 
-      {isActive
-        ? "Active"
-        : "Inactive"}
-    </span>
-  );
-};
+            h-1.5
 
+            w-1.5
+
+            rounded-full
+
+            ${
+              isActive
+                ? "bg-[#4caf6b]"
+                : "bg-[#918a99]"
+            }
+          `}
+        />
+
+        {isActive
+          ? "Active"
+          : "Inactive"}
+      </span>
+    );
+  };
 
 /* =========================
    COUNT
@@ -1323,13 +1972,15 @@ const CategoryStatusBadge = ({
 
 const CountValue = ({
   icon,
+
   value,
 }: {
   icon: ReactNode;
+
   value: number;
 }) => {
   return (
-    <div className="inline-flex items-center gap-2 text-sm font-medium text-[#625b6c]">
+    <div className="inline-flex items-center gap-2 text-[15px] font-bold text-[#625b6c]">
       <span className="text-[#9b92a5]">
         {icon}
       </span>
@@ -1339,138 +1990,280 @@ const CountValue = ({
   );
 };
 
-
 /* =========================
    ACTIONS
 ========================= */
 
 const CategoryActions = ({
   category,
-  open,
-  onToggle,
+
   onView,
+
   onEdit,
+
   onStatusChange,
 }: {
-  category: Category;
+  category:
+    Category;
 
-  open: boolean;
+  onView:
+    () => void;
 
-  onToggle: () => void;
-
-  onView: () => void;
-
-  onEdit: () => void;
+  onEdit:
+    () => void;
 
   onStatusChange: (
     active: boolean
   ) => void;
 }) => {
   return (
-    <div className="relative">
+    <div className="flex items-center gap-1.5">
+      {/* VIEW */}
+
       <button
         type="button"
-        aria-label={`Actions for ${category.name}`}
-        onClick={onToggle}
+
+        title="View category"
+
+        aria-label={`View ${category.name}`}
+
+        onClick={
+          onView
+        }
+
         className="
-          flex h-9 w-9
+          flex
+
+          h-9
+
+          w-9
+
+          cursor-pointer
+
           items-center
+
           justify-center
+
           rounded-lg
-          text-[#9a93a3]
-          transition
-          hover:bg-[#f2eeff]
-          hover:text-[#6e59ff]
+
+          border
+          border-[#e5e0ee]
+
+          bg-white
+
+          text-[#625b6c]
+
+          transition-all
+          duration-200
+
+          hover:-translate-y-[1px]
+
+          hover:border-[#7057f5]
+
+          hover:bg-[#7057f5]
+
+          hover:text-white
+
+          hover:shadow-[0_5px_14px_rgba(112,87,245,0.22)]
+
+          active:translate-y-0
+
+          active:scale-95
         "
       >
-        <MoreHorizontal
-          size={19}
+        <Eye
+          size={16}
+
+          strokeWidth={1.9}
         />
       </button>
 
-      {open && (
-        <div
+      {/* EDIT */}
+
+      <button
+        type="button"
+
+        title="Edit category"
+
+        aria-label={`Edit ${category.name}`}
+
+        onClick={
+          onEdit
+        }
+
+        className="
+          flex
+
+          h-9
+
+          w-9
+
+          cursor-pointer
+
+          items-center
+
+          justify-center
+
+          rounded-lg
+
+          border
+          border-[#ddd4ff]
+
+          bg-[#eee9ff]
+
+          text-[#7057f5]
+
+          transition-all
+          duration-200
+
+          hover:-translate-y-[1px]
+
+          hover:border-[#7057f5]
+
+          hover:bg-[#7057f5]
+
+          hover:text-white
+
+          hover:shadow-[0_5px_14px_rgba(112,87,245,0.22)]
+
+          active:translate-y-0
+
+          active:scale-95
+        "
+      >
+        <Pencil
+          size={16}
+
+          strokeWidth={1.9}
+        />
+      </button>
+
+      {/* ENABLE / DISABLE */}
+
+      {category.isActive ? (
+        <button
+          type="button"
+
+          title="Disable category"
+
+          aria-label={`Disable ${category.name}`}
+
+          onClick={() =>
+            onStatusChange(
+              false
+            )
+          }
+
           className="
-            absolute right-0
-            top-[calc(100%+6px)]
-            z-50 w-[150px]
-            overflow-hidden
-            rounded-xl
-            border border-[#e8e3ee]
-            bg-white py-1.5
-            shadow-[0_14px_35px_rgba(53,42,78,0.14)]
+            flex
+
+            h-9
+
+            w-9
+
+            cursor-pointer
+
+            items-center
+
+            justify-center
+
+            rounded-lg
+
+            border
+            border-[#ffd9df]
+
+            bg-[#fff0f2]
+
+            text-[#df5c6d]
+
+            transition-all
+            duration-200
+
+            hover:-translate-y-[1px]
+
+            hover:border-[#df5c6d]
+
+            hover:bg-[#df5c6d]
+
+            hover:text-white
+
+            hover:shadow-[0_5px_14px_rgba(223,92,109,0.20)]
+
+            active:translate-y-0
+
+            active:scale-95
           "
         >
-          <button
-            type="button"
-            onClick={onView}
-            className="
-              flex w-full
-              items-center
-              px-3 py-2
-              text-left
-              text-[12px]
-              font-medium
-              text-[#5f5867]
-              transition
-              hover:bg-[#f7f4ff]
-              hover:text-[#6e59ff]
-            "
-          >
-            View
-          </button>
+          <PowerOff
+            size={16}
 
-          <button
-            type="button"
-            onClick={onEdit}
-            className="
-              flex w-full
-              items-center
-              px-3 py-2
-              text-left
-              text-[12px]
-              font-medium
-              text-[#5f5867]
-              transition
-              hover:bg-[#f7f4ff]
-              hover:text-[#6e59ff]
-            "
-          >
-            Edit
-          </button>
+            strokeWidth={1.9}
+          />
+        </button>
+      ) : (
+        <button
+          type="button"
 
-          <button
-            type="button"
-            onClick={() =>
-              onStatusChange(
-                !category.isActive
-              )
-            }
-            className={`
-              flex w-full
-              items-center
-              px-3 py-2
-              text-left
-              text-[12px]
-              font-medium
-              transition
-              ${
-                category.isActive
-                  ? "text-[#d95c70] hover:bg-[#fff4f5]"
-                  : "text-[#4f8d67] hover:bg-[#f2fbf5]"
-              }
-            `}
-          >
-            {category.isActive
-              ? "Disable"
-              : "Enable"}
-          </button>
-        </div>
+          title="Enable category"
+
+          aria-label={`Enable ${category.name}`}
+
+          onClick={() =>
+            onStatusChange(
+              true
+            )
+          }
+
+          className="
+            flex
+
+            h-9
+
+            w-9
+
+            cursor-pointer
+
+            items-center
+
+            justify-center
+
+            rounded-lg
+
+            border
+            border-[#ccefd9]
+
+            bg-[#eaf8ef]
+
+            text-[#39975b]
+
+            transition-all
+            duration-200
+
+            hover:-translate-y-[1px]
+
+            hover:border-[#39975b]
+
+            hover:bg-[#39975b]
+
+            hover:text-white
+
+            hover:shadow-[0_5px_14px_rgba(57,151,91,0.20)]
+
+            active:translate-y-0
+
+            active:scale-95
+          "
+        >
+          <Power
+            size={16}
+
+            strokeWidth={1.9}
+          />
+        </button>
       )}
     </div>
   );
 };
-
 
 /* =========================
    MOBILE DETAIL
@@ -1478,24 +2271,27 @@ const CategoryActions = ({
 
 const MobileDetail = ({
   label,
+
   value,
 }: {
-  label: string;
-  value: string;
+  label:
+    string;
+
+  value:
+    string;
 }) => {
   return (
     <div>
-      <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-[#aaa3b2]">
+      <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#aaa3b2]">
         {label}
       </p>
 
-      <p className="mt-1 truncate text-xs font-medium text-[#554e5e]">
+      <p className="mt-1 truncate text-[13px] font-bold text-[#554e5e]">
         {value}
       </p>
     </div>
   );
 };
-
 
 /* =========================
    PAGINATION
@@ -1503,36 +2299,99 @@ const MobileDetail = ({
 
 const PaginationButton = ({
   children,
+
   active = false,
+
   disabled = false,
+
   onClick,
 }: {
-  children: ReactNode;
+  children:
+    ReactNode;
 
-  active?: boolean;
+  active?:
+    boolean;
 
-  disabled?: boolean;
+  disabled?:
+    boolean;
 
-  onClick?: () => void;
+  onClick?:
+    () => void;
 }) => {
   return (
     <button
       type="button"
-      disabled={disabled}
-      onClick={onClick}
+
+      disabled={
+        disabled
+      }
+
+      onClick={
+        onClick
+      }
+
       className={`
-        flex h-8 min-w-8
+        flex
+
+        h-9
+
+        min-w-9
+
         items-center
+
         justify-center
-        rounded-lg px-2
-        text-xs font-medium
-        transition
+
+        rounded-lg
+
+        border
+
+        px-2
+
+        text-[13px]
+
+        font-bold
+
+        transition-all
+        duration-200
+
         disabled:cursor-not-allowed
+
         disabled:opacity-35
+
         ${
           active
-            ? "bg-[#725aff] text-white shadow-[0_5px_14px_rgba(114,90,255,0.22)]"
-            : "text-[#756e7e] hover:bg-[#f2eeff] hover:text-[#6e59ff]"
+            ? `
+              border-[#7057f5]
+
+              bg-[#7057f5]
+
+              text-white
+
+              shadow-[0_5px_14px_rgba(112,90,255,0.22)]
+            `
+            : `
+              cursor-pointer
+
+              border-[#e6e1ec]
+
+              bg-white
+
+              text-[#696171]
+
+              hover:border-[#7057f5]
+
+              hover:bg-[#f3efff]
+
+              hover:text-[#7057f5]
+
+              active:scale-95
+
+              disabled:hover:border-[#e6e1ec]
+
+              disabled:hover:bg-white
+
+              disabled:hover:text-[#696171]
+            `
         }
       `}
     >

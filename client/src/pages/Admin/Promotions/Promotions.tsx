@@ -5,9 +5,12 @@ import {
   ChevronRight,
   CircleOff,
   Clock3,
-  MoreHorizontal,
+  Eye,
   Percent,
+  Pencil,
   Plus,
+  Power,
+  PowerOff,
   Search,
   SlidersHorizontal,
   Sparkles,
@@ -19,7 +22,6 @@ import {
 } from "react";
 
 import type {
-  CSSProperties,
   ReactNode,
 } from "react";
 
@@ -31,19 +33,11 @@ import {
    TYPOGRAPHY
 ========================= */
 
-const headingFont =
+const carlitoFont =
+  "font-['Carlito']";
+
+const statsFont =
   "font-['Poppins']";
-
-const bodyFont =
-  "font-['Google_Sans']";
-
-const inputFont =
-  "font-['Sora']";
-
-const inputFontStyle: CSSProperties = {
-  fontFamily:
-    "'Sora', sans-serif",
-};
 
 /* =========================
    TYPES
@@ -120,9 +114,7 @@ type PromotionStats = {
 
 type PromotionsResponse = {
   promotions: Promotion[];
-
   pagination: Pagination;
-
   stats: PromotionStats;
 };
 
@@ -195,15 +187,13 @@ const getEffectiveStatus = (
 
   const now = Date.now();
 
-  const start =
-    new Date(
-      promotion.startAt
-    ).getTime();
+  const start = new Date(
+    promotion.startAt
+  ).getTime();
 
-  const end =
-    new Date(
-      promotion.endAt
-    ).getTime();
+  const end = new Date(
+    promotion.endAt
+  ).getTime();
 
   if (now < start) {
     return "Scheduled";
@@ -226,7 +216,9 @@ const formatDate = (
       month: "short",
       year: "numeric",
     }
-  ).format(new Date(value));
+  ).format(
+    new Date(value)
+  );
 };
 
 /* =========================
@@ -310,13 +302,6 @@ const Promotions = () => {
   ] = useState(false);
 
   const [
-    openActionId,
-    setOpenActionId,
-  ] = useState<
-    string | null
-  >(null);
-
-  const [
     refreshKey,
     setRefreshKey,
   ] = useState(0);
@@ -388,7 +373,9 @@ const Promotions = () => {
             );
           }
 
-          if (discountType) {
+          if (
+            discountType
+          ) {
             params.set(
               "discountType",
               discountType
@@ -488,7 +475,8 @@ const Promotions = () => {
       page < 1 ||
       page >
         pagination.totalPages ||
-      page === pagination.page
+      page ===
+        pagination.page
     ) {
       return;
     }
@@ -563,7 +551,8 @@ const Promotions = () => {
           await fetch(
             `http://localhost:5000/api/admin/promotions/${promotion.id}/status`,
             {
-              method: "PATCH",
+              method:
+                "PATCH",
 
               credentials:
                 "include",
@@ -593,8 +582,6 @@ const Promotions = () => {
           );
         }
 
-        setOpenActionId(null);
-
         setRefreshKey(
           (current) =>
             current + 1
@@ -613,112 +600,64 @@ const Promotions = () => {
   ========================= */
 
   return (
-    <div
-      className={`w-full pb-10 ${bodyFont}`}
-    >
-      {/* HEADER */}
-
-      <div
-        className="
-          mb-6 flex flex-col gap-4
-          rounded-[20px]
-          border border-[#e6def8]
-          bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
-          p-5
-          sm:flex-row
-          sm:items-center
-          sm:justify-between
-        "
-      >
-        <div>
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8368e0]">
-            Marketing
-          </p>
-
-          <h1
-            className={`${headingFont} text-[25px] font-semibold tracking-[-0.03em] text-[#211d29]`}
-          >
-            Promotions
-          </h1>
-        </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            navigate(
-              "/admin/promotions/new"
-            )
-          }
-          className="
-            inline-flex h-11
-            shrink-0 items-center
-            justify-center gap-2
-            rounded-xl
-            bg-[linear-gradient(135deg,#6e59ff,#8c63f5)]
-            px-5
-            text-sm font-medium
-            text-white
-            shadow-[0_10px_26px_rgba(110,89,255,0.22)]
-            transition-all
-            duration-200
-            hover:-translate-y-0.5
-            hover:shadow-[0_14px_30px_rgba(110,89,255,0.28)]
-            active:translate-y-0
-          "
-        >
-          <Plus
-            size={18}
-            strokeWidth={2.2}
-          />
-
-          <span className="hidden sm:inline">
-            Add Promotion
-          </span>
-
-          <span className="sm:hidden">
-            Add
-          </span>
-        </button>
-      </div>
-
+    <div className="w-full pb-10">
       {/* ERROR */}
 
       {error && (
-        <div className="mb-5 rounded-xl border border-[#f3ccd3] bg-[#fff4f5] px-4 py-3 text-[12px] font-medium text-[#d95c70]">
+        <div
+          className={`
+            ${carlitoFont}
+            mb-5
+            rounded-xl
+            border border-[#f3ccd3]
+            bg-[#fff4f5]
+            px-4 py-3
+            text-[13px]
+            font-bold
+            text-[#d95c70]
+          `}
+        >
           {error}
         </div>
       )}
 
-      {/* PANEL */}
+      {/* MAIN PANEL */}
 
       <section
         className="
-          overflow-hidden
+          overflow-visible
           rounded-[20px]
-          border border-[#e9e5ef]
-          bg-white
+          border border-[#e6def8]
+          bg-[linear-gradient(120deg,#f4efff_0%,#ede4fd_55%,#f7f2ff_100%)]
           shadow-[0_8px_30px_rgba(53,42,78,0.035)]
         "
       >
-        {/* TOOLBAR */}
+        {/* =========================
+            TOOLBAR
+        ========================== */}
 
         <div
           className="
-            flex flex-col gap-3
-            border-b border-[#eeeaf3]
+            flex flex-col
+            gap-3
+            border-b
+            border-[#e4dcf2]
             p-4
             xl:flex-row
             xl:items-center
             xl:justify-between
           "
         >
+          {/* Search */}
+
           <div className="relative w-full xl:max-w-[360px]">
             <Search
               size={17}
               strokeWidth={2}
               className="
                 pointer-events-none
-                absolute left-3.5
+                absolute
+                left-3.5
                 top-1/2
                 -translate-y-1/2
                 text-[#aaa3b4]
@@ -739,28 +678,50 @@ const Promotions = () => {
               }}
               placeholder="Search promotion..."
               className={`
-                ${inputFont}
+                ${carlitoFont}
+
                 h-11 w-full
                 rounded-xl
-                border border-[#e8e3ee]
-                bg-[#fbfaff]
+                border
+                border-[#e8e3ee]
+                bg-white
                 pl-10 pr-4
-                text-sm text-[#2a2531]
+
+                text-[15px]
+                text-[#2a2531]
+
                 outline-none
-                transition
+                transition-all
+                duration-200
+
                 placeholder:text-[#aaa4b3]
-                focus:border-[#a997ff]
+
+                hover:border-[#9d88f7]
+                hover:bg-[#faf8ff]
+
+                focus:border-[#7057f5]
                 focus:bg-white
                 focus:ring-4
-                focus:ring-[#735cff]/[0.07]
+                focus:ring-[#7057f5]/10
               `}
-              style={
-                inputFontStyle
-              }
             />
           </div>
 
-          <div className="flex w-full gap-2 overflow-x-auto pb-1 xl:w-auto xl:overflow-visible xl:pb-0">
+          {/* FILTERS */}
+
+          <div
+            className="
+              flex w-full
+              gap-2
+              overflow-x-auto
+              pb-1
+
+              xl:w-auto
+              xl:items-center
+              xl:overflow-visible
+              xl:pb-0
+            "
+          >
             {/* TYPE */}
 
             <SelectFilter
@@ -769,6 +730,7 @@ const Promotions = () => {
                 value
               ) => {
                 setType(value);
+
                 resetFilterPage();
               }}
               label="Type"
@@ -795,7 +757,10 @@ const Promotions = () => {
               onChange={(
                 value
               ) => {
-                setStatus(value);
+                setStatus(
+                  value
+                );
+
                 resetFilterPage();
               }}
               label="Status"
@@ -834,21 +799,51 @@ const Promotions = () => {
                 type="button"
                 onClick={() =>
                   setMoreFiltersOpen(
-                    (current) =>
+                    (
+                      current
+                    ) =>
                       !current
                   )
                 }
                 className={`
-                  inline-flex h-11
-                  shrink-0 items-center
-                  gap-2 rounded-xl
-                  border bg-white px-4
-                  text-sm font-medium
-                  transition
+                  ${carlitoFont}
+
+                  inline-flex
+                  h-11
+                  shrink-0
+                  cursor-pointer
+                  items-center
+                  gap-2
+                  rounded-xl
+                  border
+                  px-4
+
+                  text-[15px]
+                  font-bold
+
+                  transition-all
+                  duration-200
+
                   ${
+                    moreFiltersOpen ||
                     hasMoreFilters
-                      ? "border-[#b8a2ef] bg-[#faf8ff] text-[#6e59ff]"
-                      : "border-[#e8e3ee] text-[#655e6f] hover:border-[#d8d0e5] hover:bg-[#faf8ff] hover:text-[#6e59ff]"
+                      ? `
+                        border-[#9d88f7]
+                        bg-[#f3efff]
+                        text-[#7057f5]
+                        shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+                      `
+                      : `
+                        border-[#e8e3ee]
+                        bg-white
+                        text-[#655e6f]
+
+                        hover:-translate-y-[1px]
+                        hover:border-[#9d88f7]
+                        hover:bg-[#f8f5ff]
+                        hover:text-[#7057f5]
+                        hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+                      `
                   }
                 `}
               >
@@ -859,23 +854,59 @@ const Promotions = () => {
                 More Filters
 
                 {hasMoreFilters && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#6e59ff]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7057f5]" />
                 )}
+
+                <ChevronDown
+                  size={15}
+                  className={`
+                    transition-transform
+                    duration-200
+
+                    ${
+                      moreFiltersOpen
+                        ? "rotate-180"
+                        : ""
+                    }
+                  `}
+                />
               </button>
+
+              {/* DROPDOWN */}
 
               {moreFiltersOpen && (
                 <div
-                  className="
-                    absolute right-0
+                  className={`
+                    ${carlitoFont}
+
+                    absolute
+                    right-0
                     top-[calc(100%+8px)]
-                    z-30 w-[280px]
-                    rounded-2xl
-                    border border-[#e8e3ee]
-                    bg-white p-4
-                    shadow-[0_18px_45px_rgba(53,42,78,0.14)]
-                  "
+                    z-[80]
+
+                    w-[320px]
+
+                    rounded-[16px]
+                    border
+                    border-[#e5def3]
+                    bg-white
+
+                    p-4
+
+                    shadow-[0_16px_40px_rgba(53,42,78,0.16)]
+                  `}
                 >
-                  <div className="space-y-4">
+                  <div className="mb-4">
+                    <p className="text-[15px] font-bold text-[#292430]">
+                      More Filters
+                    </p>
+
+                    <p className="mt-0.5 text-[12px] text-[#9991a2]">
+                      Refine promotion results
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
                     <PopupSelect
                       label="Discount Type"
                       value={
@@ -945,127 +976,250 @@ const Promotions = () => {
                         },
                       ]}
                     />
+                  </div>
 
-                    {hasMoreFilters && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDiscountType(
-                            ""
-                          );
+                  <div className="mt-4 flex items-center justify-between border-t border-[#eeeaf3] pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountType(
+                          ""
+                        );
 
-                          setScope("");
+                        setScope(
+                          ""
+                        );
 
-                          resetFilterPage();
-                        }}
-                        className="
-                          h-9 w-full
-                          rounded-xl
-                          bg-[#f3efff]
-                          text-[12px]
-                          font-semibold
-                          text-[#6e59ff]
-                          transition
-                          hover:bg-[#ece6ff]
-                        "
-                      >
-                        Clear More Filters
-                      </button>
-                    )}
+                        resetFilterPage();
+                      }}
+                      className="
+                        cursor-pointer
+                        text-[13px]
+                        font-bold
+                        text-[#8c8496]
+                        transition-colors
+                        hover:text-[#df5c6d]
+                      "
+                    >
+                      Clear Filters
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMoreFiltersOpen(
+                          false
+                        )
+                      }
+                      className="
+                        inline-flex
+                        h-9
+                        cursor-pointer
+                        items-center
+                        justify-center
+                        rounded-lg
+                        bg-[#7057f5]
+                        px-4
+                        text-[13px]
+                        font-bold
+                        text-white
+                        transition-all
+                        duration-200
+
+                        hover:-translate-y-[1px]
+                        hover:bg-[#5f47e8]
+                        hover:shadow-[0_6px_16px_rgba(112,87,245,0.24)]
+
+                        active:translate-y-0
+                        active:scale-[0.98]
+                      "
+                    >
+                      Done
+                    </button>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* ADD PROMOTION */}
+
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  "/admin/promotions/new"
+                )
+              }
+              className={`
+                ${carlitoFont}
+
+                inline-flex
+                h-11
+                shrink-0
+                cursor-pointer
+                items-center
+                justify-center
+                gap-2
+
+                rounded-xl
+                border
+                border-[#7057F5]
+                bg-[#7057F5]
+
+                px-5
+
+                text-[15px]
+                font-bold
+                text-white
+
+                shadow-[0_8px_20px_rgba(112,87,245,0.20)]
+
+                transition-all
+                duration-200
+
+                hover:-translate-y-[2px]
+                hover:border-[#5f47e8]
+                hover:bg-[#5f47e8]
+                hover:shadow-[0_12px_26px_rgba(112,87,245,0.30)]
+
+                active:translate-y-0
+                active:scale-[0.98]
+              `}
+            >
+              <Plus
+                size={18}
+                strokeWidth={2}
+              />
+
+              Add Promotion
+            </button>
           </div>
         </div>
 
-        {/* STATS */}
+        {/* =========================
+            STATS
+        ========================== */}
 
-        <div className="grid grid-cols-2 gap-3 border-b border-[#eeeaf3] bg-[#faf8ff] p-4 sm:grid-cols-4">
-          <SummaryItem
-            icon={
-              <Sparkles
-                size={16}
-              />
-            }
-            label="Promotions"
-            value={String(
-              stats.totalPromotions
-            )}
-          />
+        <div className="bg-[#f3efff] px-4 py-5">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <SummaryItem
+              icon={
+                <Sparkles
+                  size={17}
+                />
+              }
+              label="Total Promotions"
+              value={String(
+                stats.totalPromotions
+              )}
+              description="All promotional campaigns"
+              tone="violet"
+              badge="ALL"
+            />
 
-          <SummaryItem
-            icon={
-              <Percent
-                size={16}
-              />
-            }
-            label="Active"
-            value={String(
-              stats.activePromotions
-            )}
-          />
+            <SummaryItem
+              icon={
+                <Percent
+                  size={17}
+                />
+              }
+              label="Active Promotions"
+              value={String(
+                stats.activePromotions
+              )}
+              description="Currently running"
+              tone="green"
+              badge="LIVE"
+            />
 
-          <SummaryItem
-            icon={
-              <Clock3
-                size={16}
-              />
-            }
-            label="Scheduled"
-            value={String(
-              stats.scheduledPromotions
-            )}
-          />
+            <SummaryItem
+              icon={
+                <Clock3
+                  size={17}
+                />
+              }
+              label="Scheduled"
+              value={String(
+                stats.scheduledPromotions
+              )}
+              description="Upcoming campaigns"
+              tone="orange"
+              badge="SOON"
+            />
 
-          <SummaryItem
-            icon={
-              <CircleOff
-                size={16}
-              />
-            }
-            label="Inactive"
-            value={String(
-              stats.inactivePromotions
-            )}
-          />
+            <SummaryItem
+              icon={
+                <CircleOff
+                  size={17}
+                />
+              }
+              label="Inactive"
+              value={String(
+                stats.inactivePromotions
+              )}
+              description="Disabled campaigns"
+              tone="slate"
+              badge="OFF"
+            />
+          </div>
         </div>
 
-        {/* LOADING */}
+        {/* =========================
+            LOADING
+        ========================== */}
 
         {loading && (
           <div className="flex min-h-[320px] items-center justify-center">
             <div className="text-center">
               <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#ded5f8] border-t-[#725aff]" />
 
-              <p className="mt-3 text-[12px] text-[#91899a]">
+              <p
+                className={`
+                  ${carlitoFont}
+                  mt-3
+                  text-[13px]
+                  text-[#91899a]
+                `}
+              >
                 Loading promotions...
               </p>
             </div>
           </div>
         )}
 
-        {/* EMPTY */}
+        {/* =========================
+            EMPTY
+        ========================== */}
 
         {!loading &&
           promotions.length ===
             0 && (
-            <div className="flex min-h-[320px] flex-col items-center justify-center px-5 text-center">
+            <div
+              className={`
+                ${carlitoFont}
+
+                flex
+                min-h-[320px]
+                flex-col
+                items-center
+                justify-center
+                px-5
+                text-center
+              `}
+            >
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eee9ff] text-[#725aff]">
                 <Percent
                   size={24}
                 />
               </div>
 
-              <h3
-                className={`${headingFont} mt-4 text-[14px] font-semibold text-[#332d3b]`}
-              >
+              <h3 className="mt-4 text-[15px] font-bold text-[#332d3b]">
                 {search
                   ? "No promotions found"
                   : "No promotions yet"}
               </h3>
 
-              <p className="mt-1 max-w-[340px] text-[11px] leading-5 text-[#9a92a2]">
+              <p className="mt-1 max-w-[340px] text-[12px] leading-5 text-[#9a92a2]">
                 {search
                   ? "Try another promotion name."
                   : "Create your first promotion to start managing offers."}
@@ -1079,229 +1233,292 @@ const Promotions = () => {
                       "/admin/promotions/new"
                     )
                   }
-                  className="mt-4 inline-flex h-9 items-center gap-2 rounded-xl bg-[#eee6ff] px-4 text-[12px] font-semibold text-[#6750d4]"
+                  className="
+                    mt-4
+                    inline-flex
+                    h-9
+                    cursor-pointer
+                    items-center
+                    gap-2
+
+                    rounded-xl
+                    bg-[#7057f5]
+                    px-4
+
+                    text-[13px]
+                    font-bold
+                    text-white
+
+                    transition-all
+                    duration-200
+
+                    hover:-translate-y-[1px]
+                    hover:bg-[#5f47e8]
+                  "
                 >
                   <Plus
                     size={14}
                   />
+
                   Add Promotion
                 </button>
               )}
             </div>
           )}
 
-        {/* DESKTOP TABLE */}
+        {/* =========================
+            DESKTOP TABLE
+        ========================== */}
 
         {!loading &&
           promotions.length >
             0 && (
-            <div className="hidden overflow-x-auto lg:block">
-              <table className="w-full min-w-[1050px] border-collapse">
-                <thead>
-                  <tr className="bg-[linear-gradient(135deg,#7c5cfa_0%,#6c4cf0_100%)]">
-                    <TableHeading>
-                      Promotion
-                    </TableHeading>
+            <div className="hidden px-4 pb-4 lg:block">
+              <div
+                className="
+                  overflow-hidden
+                  rounded-[18px]
+                  border
+                  border-[#e5def3]
+                  bg-white
 
-                    <TableHeading>
-                      Type
-                    </TableHeading>
+                  shadow-[0_8px_24px_rgba(64,48,105,0.06)]
+                "
+              >
+                <div className="overflow-x-auto">
+                  <table
+                    className={`
+                      ${carlitoFont}
+                      w-full
+                      min-w-[1080px]
+                      border-collapse
+                    `}
+                  >
+                    <thead>
+                      <tr className="bg-[linear-gradient(135deg,#7c5cfa_0%,#6c4cf0_100%)]">
+                        <TableHeading>
+                          Promotion
+                        </TableHeading>
 
-                    <TableHeading>
-                      Discount
-                    </TableHeading>
+                        <TableHeading>
+                          Type
+                        </TableHeading>
 
-                    <TableHeading>
-                      Scope
-                    </TableHeading>
+                        <TableHeading>
+                          Discount
+                        </TableHeading>
 
-                    <TableHeading>
-                      Schedule
-                    </TableHeading>
+                        <TableHeading>
+                          Scope
+                        </TableHeading>
 
-                    <TableHeading>
-                      Status
-                    </TableHeading>
+                        <TableHeading>
+                          Schedule
+                        </TableHeading>
 
-                    <th className="w-[64px] px-4 py-3.5" />
-                  </tr>
-                </thead>
+                        <TableHeading>
+                          Status
+                        </TableHeading>
 
-                <tbody className="divide-y divide-[#f0edf3]">
-                  {promotions.map(
-                    (
-                      promotion
-                    ) => {
-                      const effectiveStatus =
-                        getEffectiveStatus(
+                        <TableHeading>
+                          Actions
+                        </TableHeading>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-[#f0edf3] bg-white">
+                      {promotions.map(
+                        (
                           promotion
-                        );
+                        ) => {
+                          const effectiveStatus =
+                            getEffectiveStatus(
+                              promotion
+                            );
 
-                      return (
-                        <tr
-                          key={
-                            promotion.id
-                          }
-                          className="
-                            group
-                            transition-colors
-                            duration-150
-                            hover:bg-[#fcfbff]
-                          "
-                        >
-                          <td className="px-5 py-4">
-                            <div className="min-w-[190px]">
-                              <p className="max-w-[230px] truncate text-sm font-semibold text-[#292430]">
-                                {
-                                  promotion.name
-                                }
-                              </p>
-
-                              <p className="mt-1 text-xs text-[#aaa3b2]">
-                                {formatScope(
-                                  promotion.scope
-                                )}
-                              </p>
-                            </div>
-                          </td>
-
-                          <td className="px-5 py-4">
-                            <span className="text-sm text-[#625b6c]">
-                              {formatPromotionType(
-                                promotion.type
-                              )}
-                            </span>
-                          </td>
-
-                          <td className="px-5 py-4">
-                            <span className="text-sm font-semibold text-[#292430]">
-                              {formatDiscount(
-                                promotion
-                              )}
-                            </span>
-                          </td>
-
-                          <td className="px-5 py-4">
-                            <span className="inline-flex rounded-lg bg-[#f3efff] px-2.5 py-1.5 text-xs font-medium text-[#7058df]">
-                              {formatScope(
-                                promotion.scope
-                              )}
-                            </span>
-                          </td>
-
-                          <td className="px-5 py-4">
-                            <div className="flex min-w-[175px] items-center gap-2">
-                              <CalendarDays
-                                size={
-                                  15
-                                }
-                                className="shrink-0 text-[#9b92a5]"
-                              />
-
-                              <div className="text-xs leading-5 text-[#625b6c]">
-                                <p>
-                                  {formatDate(
-                                    promotion.startAt
-                                  )}
-                                </p>
-
-                                <p className="text-[#aaa3b2]">
-                                  to{" "}
-                                  {formatDate(
-                                    promotion.endAt
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="px-5 py-4">
-                            <PromotionStatusBadge
-                              status={
-                                effectiveStatus
+                          return (
+                            <tr
+                              key={
+                                promotion.id
                               }
-                            />
-                          </td>
+                              className="
+                                group
+                                bg-white
 
-                          <td className="px-4 py-4">
-                           <PromotionActions
-  promotion={
-    promotion
-  }
-  effectiveStatus={
-    effectiveStatus
-  }
-  open={
-    openActionId ===
-    promotion.id
-  }
-  onToggle={() =>
-    setOpenActionId(
-      (
-        current
-      ) =>
-        current ===
-        promotion.id
-          ? null
-          : promotion.id
-    )
-  }
-  onView={() => {
-    setOpenActionId(
-      null
-    );
+                                transition-colors
+                                duration-150
 
-    navigate(
-      `/admin/promotions/${promotion.id}/view`
-    );
-  }}
-  onEdit={() => {
-    setOpenActionId(
-      null
-    );
+                                hover:bg-[#f8f5ff]
+                              "
+                            >
+                              {/* PROMOTION */}
 
-    navigate(
-      `/admin/promotions/${promotion.id}/edit`
-    );
-  }}
-  onStatusChange={(
-    nextActive
-  ) => {
-    const confirmed =
-      window.confirm(
-        nextActive
-          ? `Enable "${promotion.name}"?`
-          : `Disable "${promotion.name}"?`
-      );
+                              <td className="px-5 py-4">
+                                <div className="min-w-[190px]">
+                                  <p className="max-w-[230px] truncate text-[15px] font-bold text-[#292430]">
+                                    {
+                                      promotion.name
+                                    }
+                                  </p>
 
-    if (!confirmed) {
-      return;
-    }
+                                  <p className="mt-1 text-[13px] text-[#aaa3b2]">
+                                    {formatScope(
+                                      promotion.scope
+                                    )}
+                                  </p>
+                                </div>
+                              </td>
 
-    void updateStatus(
-      promotion,
-      nextActive
-    );
-  }}
-/>
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
-                </tbody>
-              </table>
+                              {/* TYPE */}
+
+                              <td className="px-5 py-4">
+                                <span className="text-[15px] text-[#625b6c]">
+                                  {formatPromotionType(
+                                    promotion.type
+                                  )}
+                                </span>
+                              </td>
+
+                              {/* DISCOUNT */}
+
+                              <td className="px-5 py-4">
+                                <span className="text-[15px] font-bold text-[#292430]">
+                                  {formatDiscount(
+                                    promotion
+                                  )}
+                                </span>
+                              </td>
+
+                              {/* SCOPE */}
+
+                              <td className="px-5 py-4">
+                                <span
+                                  className="
+                                    inline-flex
+                                    rounded-lg
+                                    bg-[#f3efff]
+                                    px-2.5
+                                    py-1.5
+
+                                    text-[13px]
+                                    font-bold
+                                    text-[#7058df]
+                                  "
+                                >
+                                  {formatScope(
+                                    promotion.scope
+                                  )}
+                                </span>
+                              </td>
+
+                              {/* SCHEDULE */}
+
+                              <td className="px-5 py-4">
+                                <div className="flex min-w-[175px] items-center gap-2">
+                                  <CalendarDays
+                                    size={
+                                      15
+                                    }
+                                    className="shrink-0 text-[#9b92a5]"
+                                  />
+
+                                  <div className="text-[13px] leading-5 text-[#625b6c]">
+                                    <p>
+                                      {formatDate(
+                                        promotion.startAt
+                                      )}
+                                    </p>
+
+                                    <p className="text-[#aaa3b2]">
+                                      to{" "}
+                                      {formatDate(
+                                        promotion.endAt
+                                      )}
+                                    </p>
+                                  </div>
+                                </div>
+                              </td>
+
+                              {/* STATUS */}
+
+                              <td className="px-5 py-4">
+                                <PromotionStatusBadge
+                                  status={
+                                    effectiveStatus
+                                  }
+                                />
+                              </td>
+
+                              {/* ACTIONS */}
+
+                              <td className="px-5 py-4">
+                                <PromotionActions
+                                  promotion={
+                                    promotion
+                                  }
+                                  onView={() =>
+                                    navigate(
+                                      `/admin/promotions/${promotion.id}/view`
+                                    )
+                                  }
+                                  onEdit={() =>
+                                    navigate(
+                                      `/admin/promotions/${promotion.id}/edit`
+                                    )
+                                  }
+                                  onStatusChange={(
+                                    nextActive
+                                  ) => {
+                                    const confirmed =
+                                      window.confirm(
+                                        nextActive
+                                          ? `Enable "${promotion.name}"?`
+                                          : `Disable "${promotion.name}"?`
+                                      );
+
+                                    if (
+                                      !confirmed
+                                    ) {
+                                      return;
+                                    }
+
+                                    void updateStatus(
+                                      promotion,
+                                      nextActive
+                                    );
+                                  }}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        }
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
-        {/* MOBILE */}
+        {/* =========================
+            MOBILE / TABLET
+        ========================== */}
 
         {!loading &&
           promotions.length >
             0 && (
-            <div className="divide-y divide-[#eeeaf3] lg:hidden">
+            <div
+              className={`
+                ${carlitoFont}
+                divide-y
+                divide-[#e6def0]
+                lg:hidden
+              `}
+            >
               {promotions.map(
-                (promotion) => {
+                (
+                  promotion
+                ) => {
                   const effectiveStatus =
                     getEffectiveStatus(
                       promotion
@@ -1312,17 +1529,25 @@ const Promotions = () => {
                       key={
                         promotion.id
                       }
-                      className="p-4 transition-colors hover:bg-[#fcfbff]"
+                      className="
+                        bg-white/60
+                        p-4
+
+                        transition-colors
+                        duration-200
+
+                        hover:bg-white
+                      "
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-[#292430]">
+                          <p className="truncate text-[15px] font-bold text-[#292430]">
                             {
                               promotion.name
                             }
                           </p>
 
-                          <p className="mt-1 text-xs text-[#a29aaa]">
+                          <p className="mt-1 text-[13px] text-[#a29aaa]">
                             {formatPromotionType(
                               promotion.type
                             )}
@@ -1330,57 +1555,41 @@ const Promotions = () => {
                         </div>
 
                         <PromotionActions
-  promotion={promotion}
-  effectiveStatus={
-    effectiveStatus
-  }
-  open={
-    openActionId ===
-    promotion.id
-  }
-  onToggle={() =>
-    setOpenActionId(
-      (current) =>
-        current ===
-        promotion.id
-          ? null
-          : promotion.id
-    )
-  }
-  onView={() => {
-    setOpenActionId(null);
+                          promotion={
+                            promotion
+                          }
+                          onView={() =>
+                            navigate(
+                              `/admin/promotions/${promotion.id}/view`
+                            )
+                          }
+                          onEdit={() =>
+                            navigate(
+                              `/admin/promotions/${promotion.id}/edit`
+                            )
+                          }
+                          onStatusChange={(
+                            nextActive
+                          ) => {
+                            const confirmed =
+                              window.confirm(
+                                nextActive
+                                  ? `Enable "${promotion.name}"?`
+                                  : `Disable "${promotion.name}"?`
+                              );
 
-    navigate(
-      `/admin/promotions/${promotion.id}/view`
-    );
-  }}
-  onEdit={() => {
-    setOpenActionId(null);
+                            if (
+                              !confirmed
+                            ) {
+                              return;
+                            }
 
-    navigate(
-      `/admin/promotions/${promotion.id}/edit`
-    );
-  }}
-  onStatusChange={(
-    nextActive
-  ) => {
-    const confirmed =
-      window.confirm(
-        nextActive
-          ? `Enable "${promotion.name}"?`
-          : `Disable "${promotion.name}"?`
-      );
-
-    if (!confirmed) {
-      return;
-    }
-
-    void updateStatus(
-      promotion,
-      nextActive
-    );
-  }}
-/>
+                            void updateStatus(
+                              promotion,
+                              nextActive
+                            );
+                          }}
+                        />
                       </div>
 
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -1390,7 +1599,7 @@ const Promotions = () => {
                           }
                         />
 
-                        <span className="rounded-lg bg-[#f3efff] px-2 py-1 text-[11px] font-medium text-[#7058df]">
+                        <span className="rounded-lg bg-[#f3efff] px-2 py-1 text-[12px] font-bold text-[#7058df]">
                           {formatScope(
                             promotion.scope
                           )}
@@ -1413,7 +1622,7 @@ const Promotions = () => {
                         />
                       </div>
 
-                      <div className="mt-4 flex items-center gap-2 border-t border-[#f0edf3] pt-3 text-xs text-[#777080]">
+                      <div className="mt-4 flex items-center gap-2 border-t border-[#f0edf3] pt-3 text-[13px] text-[#777080]">
                         <CalendarDays
                           size={14}
                         />
@@ -1421,7 +1630,9 @@ const Promotions = () => {
                         {formatDate(
                           promotion.startAt
                         )}
+
                         {" — "}
+
                         {formatDate(
                           promotion.endAt
                         )}
@@ -1433,20 +1644,41 @@ const Promotions = () => {
             </div>
           )}
 
-        {/* PAGINATION */}
+        {/* =========================
+            PAGINATION
+        ========================== */}
 
         {!loading &&
           pagination.total >
             0 && (
-            <div className="flex flex-col gap-3 border-t border-[#eeeaf3] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-              <p className="text-xs text-[#9991a2]">
+            <div
+              className={`
+                ${carlitoFont}
+
+                flex flex-col
+                gap-3
+                border-t
+                border-[#e6def0]
+
+                px-4 py-4
+
+                sm:flex-row
+                sm:items-center
+                sm:justify-between
+                sm:px-5
+              `}
+            >
+              <p className="text-[13px] text-[#9991a2]">
                 Showing{" "}
-                <span className="font-medium text-[#5e5768]">
+
+                <span className="font-bold text-[#5e5768]">
                   {startItem}–
                   {endItem}
                 </span>{" "}
+
                 of{" "}
-                <span className="font-medium text-[#5e5768]">
+
+                <span className="font-bold text-[#5e5768]">
                   {
                     pagination.total
                   }{" "}
@@ -1457,7 +1689,8 @@ const Promotions = () => {
               <div className="flex flex-wrap items-center gap-1">
                 <PaginationButton
                   disabled={
-                    !pagination.hasPreviousPage
+                    !pagination
+                      .hasPreviousPage
                   }
                   onClick={() =>
                     goToPage(
@@ -1485,6 +1718,7 @@ const Promotions = () => {
                       pagination.page -
                         3
                     ),
+
                     Math.min(
                       pagination.totalPages,
                       pagination.page +
@@ -1514,7 +1748,8 @@ const Promotions = () => {
 
                 <PaginationButton
                   disabled={
-                    !pagination.hasNextPage
+                    !pagination
+                      .hasNextPage
                   }
                   onClick={() =>
                     goToPage(
@@ -1546,10 +1781,13 @@ const SelectFilter = ({
   options,
 }: {
   value: string;
+
   onChange: (
     value: string
   ) => void;
+
   label: string;
+
   options: {
     value: string;
     label: string;
@@ -1564,19 +1802,37 @@ const SelectFilter = ({
             event.target.value
           )
         }
-        className="
-          h-11 appearance-none
+        className={`
+          ${carlitoFont}
+
+          h-11
+          cursor-pointer
+          appearance-none
+
           rounded-xl
-          border border-[#e8e3ee]
+          border
+          border-[#e8e3ee]
           bg-white
+
           pl-4 pr-9
-          text-sm font-medium
+
+          text-[15px]
           text-[#655e6f]
+
           outline-none
-          transition
-          hover:border-[#d8d0e5]
+
+          transition-all
+          duration-200
+
+          hover:border-[#9d88f7]
           hover:bg-[#faf8ff]
-        "
+          hover:text-[#7057f5]
+          hover:shadow-[0_5px_15px_rgba(112,87,245,0.10)]
+
+          focus:border-[#7057f5]
+          focus:ring-4
+          focus:ring-[#7057f5]/10
+        `}
       >
         <option value="">
           {label}
@@ -1604,7 +1860,8 @@ const SelectFilter = ({
         size={15}
         className="
           pointer-events-none
-          absolute right-3
+          absolute
+          right-3
           top-1/2
           -translate-y-1/2
           text-[#aaa3b2]
@@ -1625,10 +1882,13 @@ const PopupSelect = ({
   options,
 }: {
   label: string;
+
   value: string;
+
   onChange: (
     value: string
   ) => void;
+
   options: {
     value: string;
     label: string;
@@ -1636,49 +1896,82 @@ const PopupSelect = ({
 }) => {
   return (
     <div>
-      <label className="mb-1.5 block text-[11px] font-semibold text-[#746c7d]">
+      <label className="mb-1.5 block text-[12px] font-bold text-[#625b6c]">
         {label}
       </label>
 
-      <select
-        value={value}
-        onChange={(event) =>
-          onChange(
-            event.target.value
-          )
-        }
-        className="
-          h-10 w-full
-          rounded-xl
-          border border-[#e8e3ee]
-          bg-white px-3
-          text-[12px]
-          text-[#655e6f]
-          outline-none
-          focus:border-[#b8a2ef]
-        "
-      >
-        <option value="">
-          All
-        </option>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(event) =>
+            onChange(
+              event.target.value
+            )
+          }
+          className="
+            h-11
+            w-full
+            cursor-pointer
+            appearance-none
 
-        {options.map(
-          (option) => (
-            <option
-              key={
-                option.value
-              }
-              value={
-                option.value
-              }
-            >
-              {
-                option.label
-              }
-            </option>
-          )
-        )}
-      </select>
+            rounded-xl
+            border
+            border-[#e8e3ee]
+            bg-white
+
+            pl-3.5
+            pr-9
+
+            text-[14px]
+            text-[#655e6f]
+
+            outline-none
+
+            transition-all
+            duration-200
+
+            hover:border-[#9d88f7]
+            hover:bg-[#faf8ff]
+
+            focus:border-[#7057f5]
+            focus:ring-4
+            focus:ring-[#7057f5]/10
+          "
+        >
+          <option value="">
+            All
+          </option>
+
+          {options.map(
+            (option) => (
+              <option
+                key={
+                  option.value
+                }
+                value={
+                  option.value
+                }
+              >
+                {
+                  option.label
+                }
+              </option>
+            )
+          )}
+        </select>
+
+        <ChevronDown
+          size={15}
+          className="
+            pointer-events-none
+            absolute
+            right-3
+            top-1/2
+            -translate-y-1/2
+            text-[#aaa3b2]
+          "
+        />
+      </div>
     </div>
   );
 };
@@ -1687,43 +1980,224 @@ const PopupSelect = ({
    SUMMARY
 ========================= */
 
+type SummaryTone =
+  | "violet"
+  | "green"
+  | "orange"
+  | "slate";
+
 const SummaryItem = ({
   icon,
   label,
   value,
+  description,
+  tone = "violet",
+  badge,
 }: {
-  icon?: ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
+  description: string;
+  tone?: SummaryTone;
+  badge: string;
 }) => {
+  const tones: Record<
+    SummaryTone,
+    {
+      icon: string;
+      accent: string;
+      badge: string;
+    }
+  > = {
+    violet: {
+      icon:
+        "bg-[#eee9ff] text-[#7057f5]",
+
+      accent:
+        "bg-[#7057f5]",
+
+      badge:
+        "bg-[#eee9ff] text-[#7057f5]",
+    },
+
+    green: {
+      icon:
+        "bg-[#e9f9f1] text-[#3eaa79]",
+
+      accent:
+        "bg-[#49c68e]",
+
+      badge:
+        "bg-[#e9f9f1] text-[#39986d]",
+    },
+
+    orange: {
+      icon:
+        "bg-[#fff1e5] text-[#ef8b3e]",
+
+      accent:
+        "bg-[#ff9b50]",
+
+      badge:
+        "bg-[#fff1e5] text-[#df7d34]",
+    },
+
+    slate: {
+      icon:
+        "bg-[#f0eef4] text-[#777080]",
+
+      accent:
+        "bg-[#aaa3b3]",
+
+      badge:
+        "bg-[#f0eef4] text-[#777080]",
+    },
+  };
+
+  const currentTone =
+    tones[tone];
+
   return (
     <div
-      className="
-        relative overflow-hidden
-        rounded-2xl
-        border border-[#e9e2fb]
-        bg-[linear-gradient(135deg,#ffffff,#f5f1ff)]
-        p-4
-        shadow-[0_8px_22px_rgba(76,60,120,0.06)]
-      "
-    >
-      <div className="absolute -right-5 -top-5 h-16 w-16 rounded-full bg-[#8a70ff]/10" />
+      className={`
+        ${statsFont}
 
-      <div className="relative z-10 flex items-center justify-between">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eee9ff] text-[#6e59ff]">
-          {icon}
+        group
+        relative
+
+        min-h-[118px]
+
+        overflow-hidden
+
+        rounded-[18px]
+
+        border
+        border-white/80
+
+        bg-white
+
+        p-4
+
+        shadow-[0_8px_24px_rgba(79,61,126,0.08)]
+
+        transition-all
+        duration-200
+
+        hover:-translate-y-0.5
+        hover:shadow-[0_12px_30px_rgba(79,61,126,0.12)]
+      `}
+    >
+      {/* ACCENT */}
+
+      <div
+        className={`
+          absolute
+
+          -right-[34px]
+          top-1/2
+
+          h-[76px]
+          w-[76px]
+
+          -translate-y-1/2
+
+          rounded-full
+
+          opacity-90
+
+          ${currentTone.accent}
+        `}
+      />
+
+      <div
+        className={`
+          absolute
+
+          -right-[15px]
+          top-1/2
+
+          h-[86px]
+          w-[86px]
+
+          -translate-y-1/2
+
+          rounded-full
+
+          opacity-[0.08]
+
+          blur-xl
+
+          ${currentTone.accent}
+        `}
+      />
+
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div
+            className={`
+              flex
+              h-9
+              w-9
+
+              items-center
+              justify-center
+
+              rounded-xl
+
+              ${currentTone.icon}
+            `}
+          >
+            {icon}
+          </div>
+
+          <span
+            className={`
+              mr-3
+
+              rounded-full
+
+              px-2
+              py-1
+
+              text-[9px]
+              font-semibold
+
+              ${currentTone.badge}
+            `}
+          >
+            {badge}
+          </span>
         </div>
 
-        <span
-          className={`${headingFont} text-lg font-semibold text-[#292430]`}
-        >
-          {value}
-        </span>
-      </div>
+        <div className="mt-3">
+          <p className="text-[10px] font-medium text-[#91899c]">
+            {label}
+          </p>
 
-      <p className="relative z-10 mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-[#958da0]">
-        {label}
-      </p>
+          <span
+            className="
+              mt-0.5
+
+              block
+
+              text-[22px]
+              font-semibold
+
+              leading-none
+
+              tracking-[-0.04em]
+
+              text-[#211d29]
+            "
+          >
+            {value}
+          </span>
+
+          <p className="mt-1.5 text-[9px] text-[#aaa3b2]">
+            {description}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
@@ -1741,12 +2215,20 @@ const TableHeading = ({
     <th
       className="
         whitespace-nowrap
-        px-5 py-3.5
+
+        px-5
+        py-3.5
+
         text-left
-        text-[11px]
-        font-semibold
+
+        text-[12px]
+
+        font-bold
+
         uppercase
-        tracking-[0.08em]
+
+        tracking-[0.06em]
+
         text-white
       "
     >
@@ -1762,7 +2244,8 @@ const TableHeading = ({
 const PromotionStatusBadge = ({
   status,
 }: {
-  status: EffectiveStatus;
+  status:
+    EffectiveStatus;
 }) => {
   const styles =
     status === "Active"
@@ -1791,15 +2274,28 @@ const PromotionStatusBadge = ({
       className={`
         inline-flex
         items-center
+
         rounded-full
-        px-2.5 py-1
-        text-[11px]
-        font-semibold
+
+        px-2.5
+        py-1
+
+        text-[12px]
+        font-bold
+
         ${styles}
       `}
     >
       <span
-        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${dot}`}
+        className={`
+          mr-1.5
+          h-1.5
+          w-1.5
+
+          rounded-full
+
+          ${dot}
+        `}
       />
 
       {status}
@@ -1813,129 +2309,214 @@ const PromotionStatusBadge = ({
 
 const PromotionActions = ({
   promotion,
-  effectiveStatus,
-  open,
-  onToggle,
   onView,
   onEdit,
   onStatusChange,
 }: {
   promotion: Promotion;
-  effectiveStatus:
-    EffectiveStatus;
-  open: boolean;
-  onToggle: () => void;
-  onView: () => void;
-  onEdit: () => void;
+
+  onView:
+    () => void;
+
+  onEdit:
+    () => void;
+
   onStatusChange: (
     active: boolean
   ) => void;
 }) => {
   return (
-    <div className="relative">
+    <div className="flex items-center gap-1.5">
+      {/* VIEW */}
+
       <button
         type="button"
-        aria-label={`Actions for ${promotion.name}`}
-        onClick={onToggle}
+        title="View promotion"
+        aria-label={`View ${promotion.name}`}
+        onClick={
+          onView
+        }
         className="
-          flex h-9 w-9
+          flex
+          h-9
+          w-9
+
+          cursor-pointer
+
           items-center
           justify-center
+
           rounded-lg
-          text-[#9a93a3]
-          transition
-          hover:bg-[#f2eeff]
-          hover:text-[#6e59ff]
+
+          border
+          border-[#e5e0ee]
+
+          bg-white
+
+          text-[#625b6c]
+
+          transition-all
+          duration-200
+
+          hover:-translate-y-[1px]
+          hover:border-[#7057f5]
+          hover:bg-[#7057f5]
+          hover:text-white
+          hover:shadow-[0_5px_14px_rgba(112,87,245,0.22)]
+
+          active:translate-y-0
+          active:scale-95
         "
       >
-        <MoreHorizontal
-          size={19}
+        <Eye
+          size={16}
+          strokeWidth={1.9}
         />
       </button>
 
+      {/* EDIT */}
 
+      <button
+        type="button"
+        title="Edit promotion"
+        aria-label={`Edit ${promotion.name}`}
+        onClick={
+          onEdit
+        }
+        className="
+          flex
+          h-9
+          w-9
 
-      {open && (
-        <div
+          cursor-pointer
+
+          items-center
+          justify-center
+
+          rounded-lg
+
+          border
+          border-[#ddd4ff]
+
+          bg-[#eee9ff]
+
+          text-[#7057f5]
+
+          transition-all
+          duration-200
+
+          hover:-translate-y-[1px]
+          hover:border-[#7057f5]
+          hover:bg-[#7057f5]
+          hover:text-white
+          hover:shadow-[0_5px_14px_rgba(112,87,245,0.22)]
+
+          active:translate-y-0
+          active:scale-95
+        "
+      >
+        <Pencil
+          size={16}
+          strokeWidth={1.9}
+        />
+      </button>
+
+      {/* ENABLE / DISABLE */}
+
+      {promotion.isActive ? (
+        <button
+          type="button"
+          title="Disable promotion"
+          aria-label={`Disable ${promotion.name}`}
+          onClick={() =>
+            onStatusChange(
+              false
+            )
+          }
           className="
-            absolute right-0
-            top-[calc(100%+6px)]
-            z-40 w-[150px]
-            overflow-hidden
-            rounded-xl
-            border border-[#e8e3ee]
-            bg-white py-1.5
-            shadow-[0_14px_35px_rgba(53,42,78,0.14)]
+            flex
+            h-9
+            w-9
+
+            cursor-pointer
+
+            items-center
+            justify-center
+
+            rounded-lg
+
+            border
+            border-[#ffd9df]
+
+            bg-[#fff0f2]
+
+            text-[#df5c6d]
+
+            transition-all
+            duration-200
+
+            hover:-translate-y-[1px]
+            hover:border-[#df5c6d]
+            hover:bg-[#df5c6d]
+            hover:text-white
+            hover:shadow-[0_5px_14px_rgba(223,92,109,0.20)]
+
+            active:translate-y-0
+            active:scale-95
           "
         >
-          <button
-  type="button"
-  onClick={onView}
-  className="
-    flex w-full
-    items-center
-    px-3 py-2
-    text-left
-    text-[12px]
-    font-medium
-    text-[#5f5867]
-    transition
-    hover:bg-[#f7f4ff]
-    hover:text-[#6e59ff]
-  "
->
-  View
-</button>
+          <PowerOff
+            size={16}
+            strokeWidth={1.9}
+          />
+        </button>
+      ) : (
+        <button
+          type="button"
+          title="Enable promotion"
+          aria-label={`Enable ${promotion.name}`}
+          onClick={() =>
+            onStatusChange(
+              true
+            )
+          }
+          className="
+            flex
+            h-9
+            w-9
 
-<button
-  type="button"
-  onClick={onEdit}
-  className="
-    flex w-full
-    items-center
-    px-3 py-2
-    text-left
-    text-[12px]
-    font-medium
-    text-[#5f5867]
-    transition
-    hover:bg-[#f7f4ff]
-    hover:text-[#6e59ff]
-  "
->
-  Edit
-</button>
+            cursor-pointer
 
-          <button
-  type="button"
-  onClick={() =>
-    onStatusChange(
-      !promotion.isActive
-    )
-  }
-  className={`
-    flex w-full
-    items-center
-    px-3 py-2
-    text-left
-    text-[12px]
-    font-medium
-    transition
-    ${
-      promotion.isActive
-        ? "text-[#d95c70] hover:bg-[#fff4f5]"
-        : "text-[#4f8d67] hover:bg-[#f2fbf5]"
-    }
-  `}
->
-  {promotion.isActive
-    ? effectiveStatus ===
-      "Expired"
-      ? "Disable Expired"
-      : "Disable"
-    : "Enable"}
-</button>
-        </div>
+            items-center
+            justify-center
+
+            rounded-lg
+
+            border
+            border-[#ccefd9]
+
+            bg-[#eaf8ef]
+
+            text-[#39975b]
+
+            transition-all
+            duration-200
+
+            hover:-translate-y-[1px]
+            hover:border-[#39975b]
+            hover:bg-[#39975b]
+            hover:text-white
+            hover:shadow-[0_5px_14px_rgba(57,151,91,0.20)]
+
+            active:translate-y-0
+            active:scale-95
+          "
+        >
+          <Power
+            size={16}
+            strokeWidth={1.9}
+          />
+        </button>
       )}
     </div>
   );
@@ -1954,11 +2535,11 @@ const MobileDetail = ({
 }) => {
   return (
     <div>
-      <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-[#aaa3b2]">
+      <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#aaa3b2]">
         {label}
       </p>
 
-      <p className="mt-1 truncate text-xs font-medium text-[#554e5e]">
+      <p className="mt-1 truncate text-[13px] font-bold text-[#554e5e]">
         {value}
       </p>
     </div>
@@ -1975,29 +2556,75 @@ const PaginationButton = ({
   disabled = false,
   onClick,
 }: {
-  children: ReactNode;
+  children:
+    ReactNode;
+
   active?: boolean;
+
   disabled?: boolean;
-  onClick?: () => void;
+
+  onClick?:
+    () => void;
 }) => {
   return (
     <button
       type="button"
-      disabled={disabled}
-      onClick={onClick}
+      disabled={
+        disabled
+      }
+      onClick={
+        onClick
+      }
       className={`
-        flex h-8 min-w-8
+        flex
+        h-9
+        min-w-9
+
         items-center
         justify-center
-        rounded-lg px-2
-        text-xs font-medium
-        transition
+
+        rounded-lg
+
+        border
+
+        px-2
+
+        text-[13px]
+        font-bold
+
+        transition-all
+        duration-200
+
         disabled:cursor-not-allowed
         disabled:opacity-35
+
         ${
           active
-            ? "bg-[#725aff] text-white shadow-[0_5px_14px_rgba(114,90,255,0.22)]"
-            : "text-[#756e7e] hover:bg-[#f2eeff] hover:text-[#6e59ff]"
+            ? `
+              border-[#7057f5]
+              bg-[#7057f5]
+              text-white
+              shadow-[0_5px_14px_rgba(112,90,255,0.22)]
+            `
+            : `
+              cursor-pointer
+
+              border-[#e6e1ec]
+
+              bg-white
+
+              text-[#696171]
+
+              hover:border-[#7057f5]
+              hover:bg-[#f3efff]
+              hover:text-[#7057f5]
+
+              active:scale-95
+
+              disabled:hover:border-[#e6e1ec]
+              disabled:hover:bg-white
+              disabled:hover:text-[#696171]
+            `
         }
       `}
     >
