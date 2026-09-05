@@ -13,6 +13,18 @@ import {
   deleteProductImage
 } from "../controllers/adminProductController.js";
 
+import {
+  bulkImportProductsHandler,
+  downloadProductImportTemplate,
+} from "../controllers/adminProductBulkImportController.js";
+ 
+import {
+   bulkUpdateProductStatus,
+   bulkDeleteProducts,
+} from "../controllers/adminProductBulkActionController.js";
+
+import { productCsvUpload } from "../middleware/productCsvUpload.js";
+
 
 import {
   productImageUpload,
@@ -30,11 +42,19 @@ router.get(
   getProducts
 );
 
+
 router.get(
   "/lookups",
   requireAdmin,
   getProductLookups
 );
+
+router.get(
+  "/bulk-import/template",
+  requireAdmin,
+  downloadProductImportTemplate
+);
+
 
 router.get(
   "/combo-options",
@@ -55,6 +75,29 @@ router.post(
   requireCsrf,
   createProduct
 );
+
+router.post(
+  "/bulk-import",
+  requireAdmin,
+  requireCsrf,
+  productCsvUpload.single("file"),
+  bulkImportProductsHandler
+);
+ // Keep bulk routes above any "/:id" routes for clarity, same as
+ // your existing bulk-import routes.
+ router.patch(
+   "/bulk/status",
+   requireAdmin,
+   requireCsrf,
+   bulkUpdateProductStatus
+ );
+
+ router.post(
+   "/bulk/delete",
+   requireAdmin,
+   requireCsrf,
+   bulkDeleteProducts
+ );
 
 router.delete(
   "/:id/images/:type",
@@ -90,6 +133,8 @@ router.post(
   productImageUpload.single("image"),
   uploadProductImage
 );
+
+
 
 
 export default router;

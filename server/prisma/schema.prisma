@@ -195,9 +195,35 @@ model Category {
 
   promotions PromotionCategory[]
 
+  images CategoryImage[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+ model CategoryImage {
+   id         String @id @default(cuid())
+   categoryId String
+
+   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+   storagePath String
+   url         String
+   altText     String?
+
+   // Gallery order — 0 is the cover image shown in listings.
+   sortOrder Int @default(0)
+
+   width     Int?
+   height    Int?
+   sizeBytes Int?
+
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+
+   @@index([categoryId])
+   @@index([categoryId, sortOrder])
+ }
 
 model Collection {
   id String @id @default(cuid())
